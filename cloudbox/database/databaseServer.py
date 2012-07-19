@@ -3,13 +3,25 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
-from twisted.enterprise import adbapi
-from twisted.internet import Factory
-from zope.interface import implements
+from twisted.internet.protocol import Factory
 
-from cloudbox.database.interfaces import IDatabaseServerFactory
+from cloudbox.database.databaseServerProtocol import DatabaseServerProtocol
 
 class DatabaseServerFactory(Factory):
     """I am a database server that takes requests from nodes."""
 
-    implements(IDatabaseServerFactory)
+    protocol = DatabaseServerProtocol
+
+    def __init__(self, dbProvider, hubFactory=None):
+        self.isStandalone = False
+        self.hubFactory = hubFactory
+        if hubFactory is None:
+            self.isStandalone = True
+        if self.isStandalone:
+            self.loadConfig()
+        self.dbProvider = dbProvider(self)
+
+    def loadConfig(self):
+        """
+        Loads the configuration.
+        """

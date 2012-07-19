@@ -16,11 +16,13 @@ class LoopRegistry(object):
     """
 
     implements(ILoopRegistry)
-
     loops = {}
 
     def registerLoop(self, name, obj):
+        if not isinstance(obj, LoopingCall):
+            raise TypeError
         self.loops[name] = obj
 
     def unregisterLoop(self, name):
+        self.loops[name].stop()
         del self.loops[name]

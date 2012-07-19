@@ -17,7 +17,7 @@ class HeartbeatService(object):
 
     def __init__(self, factory):
         self.factory = factory
-        self.logger = factory.logger.getLogger(
+        self.logger = factory.logger
         self.agent = Agent(reactor)
 
     def sendHeartbeat(self):

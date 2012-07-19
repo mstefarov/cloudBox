@@ -12,6 +12,14 @@ class CentralLoggerPipeProtocol(Protocol):
 
     buffer = "" # Buffer
 
+    def __init__(self, factory):
+        self.factory = factory
+
+    def connectionMade(self):
+        """Triggered when a connection is made."""
+        self.logger = self.factory.parent.logger
+        self.factory.instance = self
 
     def dataReceived(self, data):
+        """Triggered when data is received."""
     

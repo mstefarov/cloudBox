@@ -4,6 +4,8 @@
 # cloudBox Package.
 
 from yaml import load, dump
+import yaml
+
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
@@ -16,8 +18,7 @@ from cloudbox.hub.hubServerProtocol import MinecraftHubServerProtocol
 
 class MinecraftHubServerFactory(ServerFactory):
     """
-    I am the Minecraft side of the hub. Aside from handling Minecraft client's requests, I
-    also act as a gateway between world servers and clients.
+    I am the Minecraft side of the hub. I handle Minecraft client requests and pass them on to World Servers.
     """
     protocol = MinecraftHubServerProtocol
 
@@ -29,25 +30,24 @@ class MinecraftHubServerFactory(ServerFactory):
         self.clients = {}
         self.loadConfig()
 
-    def dataReceived(self):
-        """Triggered when data is received."""
-        pass
-
     def loadConfig(self, reload=False):
         """Loads the config from the configuration file."""
         self.settings = yaml.load("../config/hub.yaml", Loader)
 
     def claimId(self, proto):
+        """
+        Fetches ID for a client protocol instance.
+        """
         for i in range(1, self.settings["main"]["max_clients"] + 1):
             if i not in self.clients:
                 self.clients[i] = {"username": proto.username, "protocol": proto}
-                self.runHook("idClaimed", {"id": i, "client": proto})
+                # TODO - Hook Call Here
                 return i
         # Server is full, claim ID only for staff
-        if client.isHelper():
+        if proto.isHelper():
             i = len(self.clients.keys()) + 1
-            self.clients[i] = client
-            self.runHook("idClaimed", {"id": i, "client": client})
+            self.clients[i] = {"username": proto.username, "protocol": proto}
+            # TODO - Hook Call Here
             return i
         raise ServerFull
 
@@ -56,7 +56,8 @@ class MinecraftHubServerFactory(ServerFactory):
         Assign a WorldServer to a user.
         Load Balancing magic happens here.
         """
-        # Get the 
+        # Get the current load from servers
+
 
     def buildUsernames(self, wsID):
         """

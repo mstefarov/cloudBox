@@ -7,6 +7,8 @@ from twisted.application import internet, service
 
 from cloudbox.hub import minecraft, worldServerComm
 
+# Initialize loggers
+
 # Service
 hubServer = service.MultiService()
 
@@ -16,11 +18,15 @@ internet.TCPServer(mcHubServerFactory.settings["ports"]["clients"], mcHubServerF
 
 # WorldServer part of the Hub
 worldCommServerFactory = worldServerComm.WorldServerCommServer(mcHubServerFactory)
-internet.TCPServer(mcHubServerFactory.settings["ports"]["worldservers"], worldCommServerFactory).setServiceParent(hubServer)
+internet.TCPServer(mcHubServerFactory.settings["ports"]["worldservers"], worldCommServerFactory).\
+setServiceParent(hubServer)
 
 # Initialize optional servers, if they are a part of the hub server
 
-if "logging" in mcHubServerFactory.settings["main"]["ports"]["worldservers"]
+if "loggerserver" in mcHubServerFactory.settings["main"]["ports"]:
+    import cloudbox.logger.centralLogger
+    loggerServerFactory = centralLogger.CentralLoggerFactory()
+    internet.TCPServer()
 
 # cloudBox, the variable that binds everything together.
 cloudBox = service.Application("cloudBox")

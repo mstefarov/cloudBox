@@ -5,13 +5,15 @@
 
 from zope.interface import Attribute, Interface
 
-class IDatabaseServerFactory(Interface):
+#noinspection PyMethodParameters,PyMethodParameters,PyMethodParameters
+class IDatabaseProvider(Interface):
     """
-    An object that provides the DatabaseServerFactory interface.
+    The interface to the Database Providers
     """
 
     dbConnection = Attribute("The database connection")
 
+    #noinspection PyMethodParameters
     def dbConnect():
         """
         Connects to the database.

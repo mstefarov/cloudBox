@@ -4,7 +4,6 @@
 # cloudBox Package.
 
 from twisted.internet.protocol import ClientFactory
-from zope.interface import implements
 
 from cloudbox.common.centralLogger import CentralLoggerPipeProtocol
 
@@ -13,16 +12,12 @@ class CentralLoggerPipeFactory(ClientFactory):
     I am a pipe that connects an object to the Central Logger.
     """
 
-    protocol = centralLoggerPipeProtocol
+    protocol = CentralLoggerPipeProtocol
 
-    def __init__(self, main_factory):
-        self.main_factory = main_factory
+    def __init__(self, parent):
+        self.parent = parent
         self.instance = None
         self.rebootFlag = True
-
-    def quit(self, msg):
-        self.rebootFlag = False
-        self.instance.sendLine("QUIT :" + msg)
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
@@ -31,5 +26,5 @@ class CentralLoggerPipeFactory(ClientFactory):
             connector.connect()
 
     def clientConnectionFailed(self, connector, reason):
-        self.main_factory.logger.critical("IRC connection failed: %s" % reason)
+        self.parent.logger.critical("CentralLogger connection failed: %s" % reason)
         self.instance = None
