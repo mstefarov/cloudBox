@@ -12,3 +12,33 @@ SERVER_TYPES = {
     "CentralLogger": 3,
     "HeartbeatService": 4,
 }
+
+SERVER_TYPE_INV = dict((v, k) for k, v in SERVER_TYPES.iteritems())
+
+DEFAULT_PERMISSIONS = {
+
+}
+
+# Handlers - the basics
+
+# Packets sent from clients
+HANDLERS_CLIENT_BASIC = {
+    0x00: ["keepAlive", "cloudbox.common.handlers"],
+    0x01: ["initHandshake", "cloudbox.common.handlers"],
+    0x02: ["handshakeEncryptResponse", "cloudbox.common.handlers"], # Placeholder for encryption, unused for now
+    0xFF: ["disconnect", "cloudbox.common.handlers"],
+}
+
+# Packets sent from servers
+HANDLERS_SERVER_BASIC = {
+    0x00: ["keepAlive", "cloudbox.common.handlers"],
+    0x01: ["handshakeEncrypt", "cloudbox.common.handlers"], # Placeholder for encryption, unused for now
+    0x02: ["establishConnection", "cloudbox.common.handlers"],
+    0xFF: ["disconnect", "cloudbox.common.handlers"],
+}
+
+# Errors
+
+ERR_NOT_ENOUGH_DATA = 100
+ERR_METHOD_NOT_FOUND = 101
+ERR_UNABLE_TO_PARSE_DATA = 102

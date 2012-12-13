@@ -3,9 +3,11 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
+import logging
+
 from twisted.internet.protocol import ClientFactory
 
-from cloudbox.common.centralLogger import CentralLoggerPipeProtocol
+from cloudbox.common.centralLogger.protocol import CentralLoggerPipeProtocol
 
 class CentralLoggerPipeFactory(ClientFactory):
     """
@@ -28,3 +30,6 @@ class CentralLoggerPipeFactory(ClientFactory):
     def clientConnectionFailed(self, connector, reason):
         self.parent.logger.critical("CentralLogger connection failed: %s" % reason)
         self.instance = None
+
+    def send(self, message, level=logging.INFO):    
+        self.instance.send(message, level)

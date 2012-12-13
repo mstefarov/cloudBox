@@ -11,7 +11,8 @@ from twisted.internet.task import LoopingCall
 from twisted.internet.threads import deferToThread
 from twisted.python.logfile import DailyLogFile
 
-import cloudbox.common.generalPacketProcessor as gpp
+from cloudbox.common.constants import *
+from cloudbox.common.gpp import MSGPackPacketProcessor
 
 class CentralLoggerProtocol(Protocol):
     """
@@ -20,26 +21,24 @@ class CentralLoggerProtocol(Protocol):
 
     def __init__(self):
         self.serverType = None
-        self.buffer = ""
-        self.gpp = gpp.GeneralPacketParser(self, self.factory.handlers, self.buffer)
+        self.gpp = MSGPackPacketProcessor(self, self.factory.handlers)
 
     def dataReceived(self, data):
         """Triggered when data is received."""
         # First, add the data we got onto our internal buffer
-        self.buffer += data
-        # While we have data in the buffer...
-        while self.buffer:
-            # Ask the GPP to decode the data, if possible
-            response = self.gpp.parseFirstPacket()
-            # Check the response
-            if response == gpp.ERR_UNABLE_TO_PARSE_HEADER:
-                # It's a weird data packet, probably a ping.
-                callLater(0.2, self.transport.loseConnection)
-                break
-            elif response == gpp.ERR_UNABLE_TO_PARSE_DATA:
-                # Warn the user that we have an unhandlable packet
-                self.factory.logger.warning("Received unparsable data. Dropping connection.")
-                callLater(0.2, self.transport.loseConnection)
+        self.gpp.feed(data)
+        while True:
+            try:
+                # Ask the GPP to decode the data, if possible
+                response = self.gpp.parseFirstPacket()
+                # Check the response
+                if response == ERR_METHOD_NOT_FOUND:
+                    # Warn the user that we have an unhandlable packet
+                    self.factory.logger.warning("Received unparsable data. Dropping connection.")
+                    callLater(0.2, self.transport.loseConnection)
+                    return
+            except StopIteration:
+                # No more data
                 break
 
 class CentralLoggerFactory(ServerFactory):
@@ -61,7 +60,7 @@ class CentralLoggerFactory(ServerFactory):
         self.cache = []
         self.wfcLoop = LoopingCall(self.writeFromCache)
         if not self.isStandalone:
-            self.hubFactory.registerLoop(self.wfcLoop, "logger.centralLoggerFactory.writeFromCache")
+            self.wfcLoop = self.hubFactory.service.loops.registerLoop(self.wfcLoop, "logger.centralLogger.writeFromCache")
         self.wfcLoop.start(2)
         self.logger = self.hubFactory.logger if not self.isStandalone else Logger()
 
@@ -69,7 +68,7 @@ class CentralLoggerFactory(ServerFactory):
         """Grabs data from cache and write them."""
         # If nothing's in the cache, return
         if not self.cache: return
-        deferToThread(self._writeFromCache) # Because File I/O is blocking.
+        deferToThread(self._writeFromCache) # Because File I/O blocks
 
     def _writeFromCache(self):
         _cache = self.cache

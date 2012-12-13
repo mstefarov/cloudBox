@@ -44,7 +44,7 @@ class Logger(logging.getLoggerClass()):
         self.stdout(towrite)
         # Send it to CentralLoggerPipe
         if self.clp is not None:
-           self.clp.log(self.name, logging.getLevelName(level), data)
+            self.clp.log(self.name, logging.getLevelName(level), data)
 
     def debug(self, data):
         """DEBUG level output"""

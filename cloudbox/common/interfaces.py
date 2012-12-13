@@ -28,6 +28,16 @@ class IGeneralPacketProcessor(Interface):
     Interface for all GeneralPacketProcessors.
     """
     buffer = Attribute("""Buffer for data received.""")
+    handlers = Attribute("""Handlers for specific packet types received.""")
+    parent = Attribute("""Parent instance.""")
+
+    def init(parent, handlers, buffer):
+        """
+        Initializes the GPP.
+         handlers: A dict of the format {packetTypeID: [ParsingHandler, DataHandler]}
+        parent: The parent that is using the parser.
+        buffer:; The buffer string.
+        """
 
     def parseFirstPacket():
         """
@@ -37,4 +47,21 @@ class IGeneralPacketProcessor(Interface):
     def packPacket(handler, data):
         """
         Packs a packet using the given handler..
+        """
+
+class ILoopRegistry(Interface):
+    """
+    Interface for a Loop Registry.
+    """
+
+    loops = Attribute("The dictionary that contains all the loops.")
+
+    def registerLoop(name, obj):
+        """
+        Registers a loop.
+        """
+
+    def unregisterLoop(name):
+        """
+        Unregisters a loop.
         """

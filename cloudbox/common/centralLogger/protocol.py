@@ -5,15 +5,28 @@
 
 from twisted.internet.protocol import Protocol
 
+from cloudbox.common.gpp import MSGPackPacketProcessor
+
+HANDLERS_CLIENT = {
+
+}
+
+HANDLERS_SERVER = {
+
+}
+
 class CentralLoggerPipeProtocol(Protocol):
     """
     Protocol for the Central Logger.
     """
 
-    buffer = "" # Buffer
-
     def __init__(self, factory):
         self.factory = factory
+        self.handlers = [
+            HANDLERS_CLIENT_BASIC + HANDLERS_CLIENT, # Send
+            HANDLERS_SERVER_BASIC + HANDLERS_SERVER, # Receive
+        ]
+        self.gpp = MSGPackPacketProcessor(self, self.handlers)
 
     def connectionMade(self):
         """Triggered when a connection is made."""
@@ -22,4 +35,4 @@ class CentralLoggerPipeProtocol(Protocol):
 
     def dataReceived(self, data):
         """Triggered when data is received."""
-    
+        

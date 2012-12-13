@@ -4,3 +4,8 @@
 # cloudBox Package.
 
 from cloudbox.common.interfaces import IDataHandler
+
+class logDataDataHandler(object):
+    """
+    I am a log data packet.
+    """

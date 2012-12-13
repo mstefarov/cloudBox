@@ -6,7 +6,7 @@
 from twisted.internet.task import LoopingCall
 from zope.interface import implements
 
-from cloudbox.common.loopRegistry.interfaces import ILoopRegistry
+from cloudbox.common.interfaces import ILoopRegistry
 
 class LoopRegistry(object):
     """

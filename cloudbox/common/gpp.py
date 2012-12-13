@@ -3,33 +3,61 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
-from google.protobuf import descriptor, descriptor_pb2, message, reflection
+import msgpack
 from zope.interface import implements
 
-from cloudbox.common.interfaces import IGeneralPacketParser
-from cloudbox.common.protodef import Header
+from cloudbox.common.constants import *
+from cloudbox.common.interfaces import IGeneralPacketProcessor
 
-ERR_NOT_ENOUGH_DATA = 0
-ERR_UNABLE_TO_PARSE_HEADER = 1
-ERR_UNABLE_TO_PARSE_DATA = 2
 
-class ProtobufPacketProcessor(object):
+class MSGPackPacketProcessor(object):
     """
-    A General Packet Parser designed for protobuf packets.
-    Automatically splits packets, reads the header then dispatches data to registered handlers.
+    A General Packet Processor for MSGPack packets.
     """
     implements(IGeneralPacketProcessor)
 
-    def __init__(self, parent, handlers, buffer):
+    def __init__(self, parent, handlers):
+        """
+        Initialization.
+        """
+        self.parent = parent
+        self.handlers = handlers
+        self.unpacker = msgpack.Unpacker()
+
+    def feed(self, data):
+        self.unpacker.feed(data)
+
+    def parseFirstPacket(self):
+        """
+        Parses the first packet received in the buffer and return it.
+        """
+        # Try to decode the data
+        data = self.unpacker.unpack()
+        if not data:
+            return ERR_NOT_ENOUGH_DATA # Try again later
+        # Read the handler
+        handler = data[0]
+        if handler not in self.handlers.keys():
+            return ERR_METHOD_NOT_FOUND
+        # Pass it on to the handler to handle this request
+        ret = self.handlers[handler].parseData(data[1])
+        return ret
+
+class ProtobufPacketProcessor(object):
+    """
+    A General Packet Processor designed for protobuf packets.
+    Automatically splits packets, reads the header then dispatches data to registered handlers.
+    Currently unused.
+    """
+    implements(IGeneralPacketProcessor)
+
+    def __init__(self, parent, handlers):
         """
         Initializes the class.
-        handlers: A dict of the format {packetTypeID: [ParsingHandler, DataHandler]}
-        parent: The parent that is using the parser.
-        buffer:; The buffer string.
         """
         self.handlers = handlers
         self.parent = parent
-        self.buffer = buffer
+        self.buffer = ""
 
     def parseFirstPacket(self):
         """
