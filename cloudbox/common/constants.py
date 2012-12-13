@@ -13,7 +13,7 @@ SERVER_TYPES = {
     "HeartbeatService": 4,
 }
 
-SERVER_TYPE_INV = dict((v, k) for k, v in SERVER_TYPES.iteritems())
+SERVER_TYPES_INV = dict((v, k) for k, v in SERVER_TYPES.iteritems())
 
 DEFAULT_PERMISSIONS = {
 

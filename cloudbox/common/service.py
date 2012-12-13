@@ -21,13 +21,8 @@ class cloudBoxService(MultiService):
         Whoami contains the server identifier.
         """
         MultiService.__init__(self)
-        if whoami not in SERVER_TYPE_INV:
+        if whoami not in SERVER_TYPES:
             raise ValueError, "Server not in valid SERVER_TYPE_INV"
-        self.serverType = SERVER_TYPE_INV[whoami]
+        self.serverType = SERVER_TYPES[whoami]
         # Make our loop registry
         self.loops = LoopRegistry()
-        
-
-service = cloudBoxService
-application = Application("cloudBox")
-service.setServiceParent(application)
