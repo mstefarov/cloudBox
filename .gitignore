@@ -2,3 +2,4 @@
 *.swp
 twistd.pid
 dropin.cache
+twistd.py

@@ -6,14 +6,7 @@
 from twisted.internet.protocol import Protocol
 
 from cloudbox.common.gpp import MSGPackPacketProcessor
-
-HANDLERS_CLIENT = {
-
-}
-
-HANDLERS_SERVER = {
-
-}
+from cloudbox.common.centralLogger.constants import *
 
 class CentralLoggerPipeProtocol(Protocol):
     """

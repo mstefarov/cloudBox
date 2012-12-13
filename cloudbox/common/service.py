@@ -26,3 +26,9 @@ class cloudBoxService(MultiService):
         self.serverType = SERVER_TYPES[whoami]
         # Make our loop registry
         self.loops = LoopRegistry()
+
+    def addService(self, service):
+        MultiService.addService(self, service)
+
+    def removeService(self, service):
+        MultiService.removeService(self, service)

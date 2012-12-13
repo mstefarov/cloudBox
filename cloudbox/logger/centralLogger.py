@@ -13,6 +13,7 @@ from twisted.python.logfile import DailyLogFile
 
 from cloudbox.common.constants import *
 from cloudbox.common.gpp import MSGPackPacketProcessor
+from cloudbox.logger.constants import *
 
 class CentralLoggerProtocol(Protocol):
     """
@@ -55,6 +56,7 @@ class CentralLoggerFactory(ServerFactory):
         self.isStandalone = False
         if self.hubFactory is None:
             self.isStandalone = True
+        self.handlers = HANDLERS_CENTRALLOGGER_SERVER
         # Initialize the log file
         self.logfile = DailyLogFile(file, directory)
         self.cache = []

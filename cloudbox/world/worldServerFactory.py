@@ -5,7 +5,7 @@
 
 from twisted.internet import Factory
 from cloudbox.common.logger import Logger
-from cloudbox.common.centralLoggerPipe import CentralLoggerPipe
+from cloudbox.common.centralLogger.pipe import CentralLoggerPipe
 
 class WorldServerFactory(Factory):
     """
