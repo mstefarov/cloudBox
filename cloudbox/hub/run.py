@@ -7,29 +7,25 @@ from twisted.application import internet, service
 
 from cloudbox.hub import minecraft, world
 
-# Initialize loggers
+def init(serv):
+    # Minecraft part of the Hub
+    mcHubServerFactory = minecraft.MinecraftHubServerFactory(serv)
+    internet.TCPServer(mcHubServerFactory.settings["ports"]["clients"], mcHubServerFactory).setServiceParent(serv)
 
-# Service
-hubServer = service.MultiService()
+    # WorldServer part of the Hub
+    worldCommServerFactory = world.WorldServerCommServer(mcHubServerFactory)
+    internet.TCPServer(mcHubServerFactory.settings["ports"]["worldservers"], worldCommServerFactory).\
+    setServiceParent(serv)
 
-# Minecraft part of the Hub
-mcHubServerFactory = minecraft.MinecraftHubServerFactory(hubServer)
-internet.TCPServer(mcHubServerFactory.settings["ports"]["clients"], mcHubServerFactory).setServiceParent(hubServer)
+    # Initialize optional servers, if they are a part of the hub server
 
-# WorldServer part of the Hub
-worldCommServerFactory = world.WorldServerCommServer(mcHubServerFactory)
-internet.TCPServer(mcHubServerFactory.settings["ports"]["worldservers"], worldCommServerFactory).\
-setServiceParent(hubServer)
+    if "loggerserver" in mcHubServerFactory.settings["main"]["ports"]:
+        import cloudbox.logger.centralLogger
+        loggerServerFactory = centralLogger.CentralLoggerFactory()
+        internet.TCPServer()
 
-# Initialize optional servers, if they are a part of the hub server
+    # cloudBox, the variable that binds everything together.
+    cloudBox = service.Application("cloudBox")
 
-if "loggerserver" in mcHubServerFactory.settings["main"]["ports"]:
-    import cloudbox.logger.centralLogger
-    loggerServerFactory = centralLogger.CentralLoggerFactory()
-    internet.TCPServer()
-
-# cloudBox, the variable that binds everything together.
-cloudBox = service.Application("cloudBox")
-
-# Connect our MultiService to the application
-hubServer.setServiceParent(cloudBox)
+    # Connect our MultiService to the application
+    serv.setServiceParent(cloudBox)

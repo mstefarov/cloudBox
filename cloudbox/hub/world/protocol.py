@@ -10,13 +10,23 @@ class WorldServerCommServerProtocol(Protocol):
     The protocol class for the WorldServer communicator factory.
     """
 
+    def __init__(self):
+        self.usernames = []
+
     def connectionMade(self):
         """
         Triggered when connection is established.
         """
-        
+        pass
 
     def dataReceived(self):
         """
         Triggered when data is received.
         """
+        pass
+
+    def doLeaveServer(self, proto):
+        """
+        Makes the protocol leave the server.
+        """
+        pass

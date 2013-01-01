@@ -25,11 +25,23 @@ class MinecraftHubServerProtocol(Protocol):
         """
         Called when a connection is made.
         """
+        
         # Get an ID for ourselves
-        self.id = self.factory.claimId(self)
+        self.id = self.factory.claimID(self)
         if self.id is None:
             self.sendError("The server is full.")
             return
+        # Assign a server for ourselves
+        self.wsID = self.factory.assignServer(self)
+        if self.wsID is None:
+            self.sendError("The connector could not find a server that is open.")
+            return
+
+    def connectionLost(self, reason):
+        # Leave the world
+        self.factory.leaveWorldServer(self, wsID)
+        # Release our ID
+        self.factory.releaseID(self.id)
 
     def dataReceived(self, data):
         """

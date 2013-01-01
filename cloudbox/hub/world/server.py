@@ -18,3 +18,20 @@ class WorldServerCommServer(ServerFactory):
     def __init__(self, parent):
         self.parent = parent
         self.worldServers = {}
+
+    def getCurrentLoads(self):
+        """
+        Gets the current load for each World Server and assemble them in a dict of {wsID: SLA}.
+        """
+        ret = {}
+        for wsID, instance in self.worldServers:
+            ret[wsID] = instance.getCurrentLoad()
+        return ret
+
+    def leaveWorldServer(self, proto, wsID):
+        """
+        Leaves the current world server.
+        """
+        if not self.worldServers.has_key(wsID):
+            raise KeyError, "World server ID does not exist or is detached"
+        self.worldServers[wsID].doLeaveServer(proto)

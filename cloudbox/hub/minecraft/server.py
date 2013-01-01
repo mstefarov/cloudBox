@@ -3,8 +3,9 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
+import operator
+
 from yaml import load, dump
-import yaml
 
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
@@ -33,8 +34,9 @@ class MinecraftHubServerFactory(ServerFactory):
     def loadConfig(self, reload=False):
         """Loads the config from the configuration file."""
         self.settings = yaml.load("../config/hub.yaml", Loader)
+        self.meta = yaml.load("../config/meta.yaml", Loader)
 
-    def claimId(self, proto):
+    def claimID(self, proto):
         """
         Fetches ID for a client protocol instance.
         """
@@ -44,12 +46,15 @@ class MinecraftHubServerFactory(ServerFactory):
                 # TODO - Hook Call Here
                 return i
         # Server is full, claim ID only for staff
-        if proto.isHelper():
+        if proto.isStaff():
             i = len(self.clients.keys()) + 1
             self.clients[i] = {"username": proto.username, "protocol": proto}
             # TODO - Hook Call Here
             return i
         raise ServerFull
+
+    def releaseID(self, id):
+        del self.clients[id]
 
     def assignServer(self, proto):
         """
@@ -57,7 +62,15 @@ class MinecraftHubServerFactory(ServerFactory):
         Load Balancing magic happens here.
         """
         # Get the current load from servers
-
+        loadDict = self.mainService.getServiceNamed("worldCommServerFactory").getCurrentLoads()
+        if loadDict == {}:
+            # No worldServer connected
+            return None
+        # Sort the dict
+        sortedDict = sorted(loadDict.iteritems(), key=operator.itemgetter(1))
+        # Pick the one with the lowest SLA, i.e the first
+        # TODO: Better way?
+        return sortedDict.keys()[0]
 
     def buildUsernames(self, wsID):
         """
@@ -72,3 +85,27 @@ class MinecraftHubServerFactory(ServerFactory):
             else:
                 theList[proto.username] = proto
         return theList
+
+    def leaveWorldServer(self, proto, wsID):
+        """
+        Leaves the current worldServer.
+        """
+        self.mainService.getServiceNamed("worldCommServerFactory").leaveWorldServer(proto, wsID)
+
+    def isBanned(self, username):
+        return self.meta["bans"].has_key(username)
+
+    def banDetails(self, username):
+        try:
+            ret = self.meta["bans"][username]
+        except KeyError:
+            ret = None
+        return ret
+
+    def isIPBanned(self, ip):
+        # Matching dark magic here
+        pass
+
+    def ipBanDetails(self, ip):
+        # moar Matching dark magic
+        pass
