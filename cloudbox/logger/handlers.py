@@ -9,3 +9,14 @@ class logDataDataHandler(object):
     """
     I am a log data packet.
     """
+
+    implements(IDataHandler)
+
+    def __init__(self, parent):
+        self.parent = parent
+
+    def packData(self, data):
+        return {"message": data["message"], "from": data["from"]}
+
+    def parseData(self, data):
+        return self.parent.unpacker.unpack(data)

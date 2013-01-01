@@ -28,4 +28,14 @@ class CentralLoggerPipeProtocol(Protocol):
 
     def dataReceived(self, data):
         """Triggered when data is received."""
-        
+        self.gpp.feed(data)
+        while True:
+            unpacked = self.gpp.parseFirstPacket()
+            if unpacked == ERR_NOT_ENOUGH_DATA:
+                # Wait a bit
+                break
+            if unpacked == ERR_METHOD_NOT_FOUND:
+                # Warn the user that we have an unhandlable packet
+                self.factory.logger.warning("Received unparsable data. Dropping connection.")
+                callLater(0.2, self.transport.loseConnection)
+                return

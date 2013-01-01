@@ -29,18 +29,17 @@ class CentralLoggerProtocol(Protocol):
         # First, add the data we got onto our internal buffer
         self.gpp.feed(data)
         while True:
-            try:
-                # Ask the GPP to decode the data, if possible
-                response = self.gpp.parseFirstPacket()
-                # Check the response
-                if response == ERR_METHOD_NOT_FOUND:
-                    # Warn the user that we have an unhandlable packet
-                    self.factory.logger.warning("Received unparsable data. Dropping connection.")
-                    callLater(0.2, self.transport.loseConnection)
-                    return
-            except StopIteration:
-                # No more data
+            # Ask the GPP to decode the data, if possible
+            response = self.gpp.parseFirstPacket()
+            # Check the response
+            if response == ERR_NOT_ENOUGH_DATA:
+                # Wait a bit
                 break
+            if response == ERR_METHOD_NOT_FOUND:
+                # Warn the user that we have an unhandlable packet
+                self.factory.logger.warning("Received unparsable data. Dropping connection.")
+                callLater(0.2, self.transport.loseConnection)
+                return
 
 class CentralLoggerFactory(ServerFactory):
     """
