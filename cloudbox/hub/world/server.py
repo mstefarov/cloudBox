@@ -6,14 +6,15 @@
 from twisted.internet.protocol import ServerFactory
 
 from cloudbox.common.logger import Logger
-from cloudbox.hub.worldServerComm import WorldCommServerProtocol
+from cloudbox.hub.world import WorldCommServerProtocol
 
 class WorldServerCommServer(ServerFactory):
     """
     I listen to World Servers and interact with them, acting as a proxy.
     """
 
-    def __init__(self, mchub):
-        self.mcHub = mchub
+    protocol = WorldCommServerProtocol
+
+    def __init__(self, parent):
+        self.parent = parent
         self.worldServers = {}
-        

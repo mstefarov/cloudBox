@@ -11,14 +11,20 @@ class MinecraftHubServerProtocol(Protocol):
     """
 
     def __init__(self):
-        """Initial set-up of the protocol"""
+        """
+        Initial set-up of the protocol
+        """
         self.buffer = ""
         self.id = None
         self.username = None
         self.wsID = None # World Server this user belongs to
 
+    ### Twisted Methods ###
+
     def connectionMade(self):
-        """Called when a connection is made."""
+        """
+        Called when a connection is made.
+        """
         # Get an ID for ourselves
         self.id = self.factory.claimId(self)
         if self.id is None:
@@ -27,7 +33,7 @@ class MinecraftHubServerProtocol(Protocol):
 
     def dataReceived(self, data):
         """
-        Called when data is received
+        Called when data is received.
         """
         # First, add the data we got onto our internal buffer
         self.buffer += data
@@ -41,10 +47,27 @@ class MinecraftHubServerProtocol(Protocol):
                 # it's a weird data packet, probably a ping.
                 reactor.callLater(0.2, self.transport.loseConnection)
                 return
-                # See if we have all its data
+            # See if we have all its data
             if len(self.buffer) - 1 < len(format):
                 # Nope, wait a bit
                 break
-                # OK, decode the data
+            # OK, decode the data
             parts = list(format.decode(self.buffer[1:]))
             self.buffer = self.buffer[len(format) + 1:]
+
+    ### Message Handling ###
+
+    def send(self, msg):
+        """
+        Sends a message to the client.
+        """
+
+    def sendError(self, error):
+        """
+        Sends an error the client.
+        """
+
+    def sendMessage(self, message):
+        """
+        Sends a message to the client.
+        """

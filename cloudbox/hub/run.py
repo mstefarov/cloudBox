@@ -5,7 +5,7 @@
 
 from twisted.application import internet, service
 
-from cloudbox.hub import minecraft, worldServerComm
+from cloudbox.hub import minecraft, world
 
 # Initialize loggers
 
@@ -17,7 +17,7 @@ mcHubServerFactory = minecraft.MinecraftHubServerFactory(hubServer)
 internet.TCPServer(mcHubServerFactory.settings["ports"]["clients"], mcHubServerFactory).setServiceParent(hubServer)
 
 # WorldServer part of the Hub
-worldCommServerFactory = worldServerComm.WorldServerCommServer(mcHubServerFactory)
+worldCommServerFactory = world.WorldServerCommServer(mcHubServerFactory)
 internet.TCPServer(mcHubServerFactory.settings["ports"]["worldservers"], worldCommServerFactory).\
 setServiceParent(hubServer)
 

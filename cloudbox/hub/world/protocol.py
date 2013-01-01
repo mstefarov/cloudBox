@@ -9,3 +9,14 @@ class WorldServerCommServerProtocol(Protocol):
     """
     The protocol class for the WorldServer communicator factory.
     """
+
+    def connectionMade(self):
+        """
+        Triggered when connection is established.
+        """
+        
+
+    def dataReceived(self):
+        """
+        Triggered when data is received.
+        """
