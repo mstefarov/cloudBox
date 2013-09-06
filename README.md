@@ -2,7 +2,7 @@
 
 cloudBox is a solution for putting Minecraft Classic on the cloud, based on Twisted. It works by separating workloads from one single server to different servers. It is designed to be fast, efficient and powerful.
 
-cloudBox is currently under heavy development. To contact the developer, drop by #cloudbox at one of the following IRC networks: EsperNet (main channel), Freenode, StormBit, ArchivesMC.
+cloudBox is currently under heavy development. To contact the developer, drop by #cloudbox at one of the following IRC networks: EsperNet (main channel), Freenode.
 
 # Server Overview
 
