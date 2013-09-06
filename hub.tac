@@ -8,6 +8,6 @@ from twisted.application.service import Application
 from cloudbox.common.service import cloudBoxService
 from cloudbox.common.constants import *
 
-service = cloudBoxService("CentralLogger")
+service = cloudBoxService("HubServer")
 application = Application("cloudBox")
 service.setServiceParent(application)

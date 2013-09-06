@@ -5,6 +5,7 @@
 
 from twisted.internet.protocol import Protocol
 
+
 class MinecraftHubServerProtocol(Protocol):
     """
     Main protocol class for communicating with clients.
@@ -47,6 +48,7 @@ class MinecraftHubServerProtocol(Protocol):
         """
         Called when data is received.
         """
+        # TODO Use GPP
         # First, add the data we got onto our internal buffer
         self.buffer += data
         # While there's still data there...

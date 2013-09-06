@@ -9,8 +9,7 @@ SERVER_TYPES = {
     "HubServer": 0,
     "WorldServer": 1,
     "DatabaseServer": 2,
-    "CentralLogger": 3,
-    "HeartbeatService": 4,
+    "HeartbeatService": 3,
 }
 
 SERVER_TYPES_INV = dict((v, k) for k, v in SERVER_TYPES.iteritems())

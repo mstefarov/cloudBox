@@ -6,7 +6,6 @@
 import operator
 
 from yaml import load, dump
-
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
@@ -16,6 +15,7 @@ from twisted.internet.protocol import ServerFactory
 
 from cloudbox.common.logger import Logger
 from cloudbox.hub.hubServerProtocol import MinecraftHubServerProtocol
+
 
 class MinecraftHubServerFactory(ServerFactory):
     """
@@ -34,7 +34,6 @@ class MinecraftHubServerFactory(ServerFactory):
     def loadConfig(self, reload=False):
         """Loads the config from the configuration file."""
         self.settings = yaml.load("../config/hub.yaml", Loader)
-        self.meta = yaml.load("../config/meta.yaml", Loader)
 
     def claimID(self, proto):
         """
@@ -45,12 +44,7 @@ class MinecraftHubServerFactory(ServerFactory):
                 self.clients[i] = {"username": proto.username, "protocol": proto}
                 # TODO - Hook Call Here
                 return i
-        # Server is full, claim ID only for staff
-        if proto.isStaff():
-            i = len(self.clients.keys()) + 1
-            self.clients[i] = {"username": proto.username, "protocol": proto}
-            # TODO - Hook Call Here
-            return i
+        # Server is full
         raise ServerFull
 
     def releaseID(self, id):

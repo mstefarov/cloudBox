@@ -10,7 +10,8 @@ from zope.interface import implements
 
 from cloudbox.common.interfaces import IDataHandler
 
-class keepAliveDataHandler(object):
+
+class KeepAliveDataHandler(object):
     """
     DataHandler for keep-alive.
     """
@@ -23,7 +24,8 @@ class keepAliveDataHandler(object):
     def packData(self, data):
         return {"randomID": random.randint(1, 999999)}
 
-class initHandshakeDataHandler(object):
+
+class InitHandshakeDataHandler(object):
     """
     DataHandler for packet HandshakeRequest.
     """
@@ -42,7 +44,8 @@ class initHandshakeDataHandler(object):
     def parseData(self, data):
         return self.parent.unpacker.unpack(data)
 
-class disconnectDataHandler(object):
+
+class DisconnectDataHandler(object):
     """
     DataHandler for disconnection.
     """

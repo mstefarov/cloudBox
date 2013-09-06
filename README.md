@@ -18,15 +18,9 @@ The World Server hosts the actual world files. Aside from handling clients, the 
 
 The Database Server handles communication between other servers and the database, providing an abstraction layer between a DBMS and the servers.
 
-The Database Server can be run as a standalone server, or as a subprocess of the Hub Server.
-
-## Logging Server
-
-The Logging Server is a central logger. This server is optional but helps serveradmins centralize server logs. This server can be run as a standalone server or as a subprocess of the Hub server.
-
 ## Web Server
 
-The Web server provides the website front-end to the server, allowing users to change settings of their worlds. This server is optional, and is replacable by the PHP version of the website (which will make use of the API of the Hub Server instead)
+The Web server provides the website front-end to the server, allowing users to change settings of their worlds. This server is optional.
 
 # What makes cloudBox special
 

@@ -9,10 +9,9 @@ main:
     ports: # Ports
         clients: 25565
         worldservers: 25000
-        loggerserver: 19668
 heartbeat:
     send_heartbeat: true
-    wom_heartbeat: true
+    classicube_heartbeat: true
 database:
     enabled: true
     ip: 127.0.0.1

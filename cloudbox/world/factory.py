@@ -7,8 +7,30 @@ from twisted.internet import Factory
 from cloudbox.common.logger import Logger
 from cloudbox.common.centralLogger.pipe import CentralLoggerPipe
 
+
 class WorldServerFactory(Factory):
     """
     I am the world server. I host some worlds, and do calculations about them.
     """
-    pass
+
+    def __init__(self, parent):
+        self.parent = parent
+        self.worlds = set()
+
+    def loadWorld(self, worldId):
+        pass
+
+    def unloadWorld(self, worldId):
+        pass
+
+    def packWorld(self, worldId):
+        """
+        Packs the world as a world stream to be sent to Hub Server.
+        """
+        pass
+
+    def unpackWorld(self, worldStream):
+        """
+        Unpacks the world stream sent from the Hub server.
+        """
+        pass

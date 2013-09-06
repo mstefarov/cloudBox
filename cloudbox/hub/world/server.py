@@ -6,7 +6,8 @@
 from twisted.internet.protocol import ServerFactory
 
 from cloudbox.common.logger import Logger
-from cloudbox.hub.world import WorldCommServerProtocol
+from cloudbox.hub.world import WorldServerCommServerProtocol
+
 
 class WorldServerCommServer(ServerFactory):
     """

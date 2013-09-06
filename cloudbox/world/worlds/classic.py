@@ -3,5 +3,13 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
-HANDLERS_CENTRALLOGGER_SERVER = {}
-HANDLERS_CENTRALLOGGER_CLIENT = {}
+from zope.interface import implements
+
+from cloudbox.world.interfaces import IWorld
+
+
+class ClassicWorld(object):
+    """
+    I am a Minecraft Classic world.
+    """
+    implements(IWorld)

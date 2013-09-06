@@ -5,6 +5,7 @@
 
 from twisted.internet.protocol import Protocol
 
+
 class WorldServerCommServerProtocol(Protocol):
     """
     The protocol class for the WorldServer communicator factory.
