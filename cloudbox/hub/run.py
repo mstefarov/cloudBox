@@ -3,20 +3,20 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
-from twisted.application import internet, service
+from twisted.application import service
+from twisted.application.internet import TCPServer
 
-from cloudbox.hub import minecraft, world
-
+from cloudbox.hub.minecraft.server import MinecraftHubServerFactory
+from cloudbox.hub.world.server import WorldServerCommServerFactory
 
 def init(serv):
     # Minecraft part of the Hub
-    mcHubServerFactory = minecraft.MinecraftHubServerFactory(serv)
-    internet.TCPServer(mcHubServerFactory.settings["ports"]["clients"], mcHubServerFactory).setServiceParent(serv)
+    mcHubServerFactory = MinecraftHubServerFactory(serv)
+    TCPServer(serv.settings["ports"]["clients"], mcHubServerFactory).setServiceParent(serv)
 
     # WorldServer part of the Hub
-    worldCommServerFactory = world.WorldServerCommServer(mcHubServerFactory)
-    internet.TCPServer(mcHubServerFactory.settings["ports"]["worldservers"], worldCommServerFactory).\
-    setServiceParent(serv)
+    wsCommServerFactory = WorldServerCommServerFactory(serv)
+    TCPServer(serv.settings["ports"]["worldservers"], wsCommServerFactory).setServiceParent(serv)
 
     # cloudBox, the variable that binds everything together.
     cloudBox = service.Application("cloudBox")

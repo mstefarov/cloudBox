@@ -3,7 +3,8 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
-from twisted.internet.protocol import Protocol
+from twisted.internet.protocol import Protocol, connectionDone as _connDone
+from cloudbox.constants.cpe import * # Classic things plus CPE things
 
 
 class MinecraftHubServerProtocol(Protocol):
@@ -26,7 +27,7 @@ class MinecraftHubServerProtocol(Protocol):
         """
         Called when a connection is made.
         """
-        
+
         # Get an ID for ourselves
         self.id = self.factory.claimID(self)
         if self.id is None:
@@ -38,7 +39,7 @@ class MinecraftHubServerProtocol(Protocol):
             self.sendError("The connector could not find a server that is open.")
             return
 
-    def connectionLost(self, reason):
+    def connectionLost(self, reason=_connDone):
         # Leave the world
         self.factory.leaveWorldServer(self, wsID)
         # Release our ID
@@ -48,23 +49,21 @@ class MinecraftHubServerProtocol(Protocol):
         """
         Called when data is received.
         """
-        # TODO Use GPP
         # First, add the data we got onto our internal buffer
         self.buffer += data
         # While there's still data there...
         while self.buffer:
             # Examine the first byte, to see what the command is
-            type = ord(self.buffer[0])
+            packetType = ord(self.buffer[0])
             try:
-                format = TYPE_FORMATS[type]
+                packetFormat = TYPE_FORMATS[packetType]
             except KeyError:
-                # it's a weird data packet, probably a ping.
-                reactor.callLater(0.2, self.transport.loseConnection)
-                return
+                # Out of range - unknown packet.
+                break
             # See if we have all its data
             if len(self.buffer) - 1 < len(format):
                 # Nope, wait a bit
-                break
+                return
             # OK, decode the data
             parts = list(format.decode(self.buffer[1:]))
             self.buffer = self.buffer[len(format) + 1:]

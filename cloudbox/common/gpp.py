@@ -6,7 +6,6 @@
 import msgpack
 from zope.interface import implements
 
-from cloudbox.common.constants import *
 from cloudbox.common.interfaces import IGeneralPacketProcessor
 
 
@@ -29,7 +28,7 @@ class MSGPackPacketProcessor(object):
 
     def parseFirstPacket(self):
         """
-        Parses the first packet received in the buffer and return it.
+        Parses the first packet received in the buffer and pass it onto the handler.
         """
         # Try to decode the data
         data = self.unpacker.unpack()

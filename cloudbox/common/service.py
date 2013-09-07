@@ -4,11 +4,10 @@
 # cloudBox Package.
 
 from twisted.application.internet import TCPClient, TCPServer
-from twisted.application.service import Application, MultiService
-from twisted.python import log
+from twisted.application.service import MultiService
 
-from cloudbox.common.constants import * 
 from cloudbox.common.loops import LoopRegistry
+from cloudbox.constants.common import *
 
 
 class cloudBoxService(MultiService):
@@ -42,4 +41,5 @@ class cloudBoxService(MultiService):
         Initializes components as needed.
         """
         if self.serverType == SERVER_TYPES["HubServer"]:
-            from cloudbox.hub import run
+            from cloudbox.hub.run import init as hubInit
+            hubInit(self)

@@ -12,7 +12,7 @@ class WorldServerCommServerProtocol(Protocol):
     """
 
     def __init__(self):
-        self.usernames = []
+        self.servers = []
 
     def connectionMade(self):
         """
@@ -20,7 +20,7 @@ class WorldServerCommServerProtocol(Protocol):
         """
         pass
 
-    def dataReceived(self):
+    def dataReceived(self, data):
         """
         Triggered when data is received.
         """

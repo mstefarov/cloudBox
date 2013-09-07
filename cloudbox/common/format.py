@@ -6,14 +6,7 @@
 import struct
 
 from cloudbox.common.util import packString
-
-FORMAT_LENGTHS = {
-    "b": 1,
-    "a": 1024,
-    "s": 64,
-    "h": 2,
-    "i": 4,
-}
+from cloudbox.constants.classic import FORMAT_LENGTHS
 
 class Format(object):
     def __init__(self, format):

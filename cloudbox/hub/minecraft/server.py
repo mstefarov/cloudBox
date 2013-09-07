@@ -5,7 +5,7 @@
 
 import operator
 
-from yaml import load, dump
+import yaml
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
@@ -13,8 +13,8 @@ except ImportError:
 
 from twisted.internet.protocol import ServerFactory
 
-from cloudbox.common.logger import Logger
-from cloudbox.hub.hubServerProtocol import MinecraftHubServerProtocol
+from cloudbox.constants.common import ServerFull
+from cloudbox.hub.minecraft.protocol import MinecraftHubServerProtocol
 
 
 class MinecraftHubServerFactory(ServerFactory):
@@ -25,11 +25,17 @@ class MinecraftHubServerFactory(ServerFactory):
 
     def __init__(self, service):
         self.mainService = service
+        self.wsFactory = None
         self.databaseServer = None
-        self.loggingServer = None
         self.settings = {}
         self.clients = {}
         self.loadConfig()
+
+    def setWSFactory(self, wsFactory):
+        """
+        Called when the World Server Factory is available.
+        """
+        self.wsFactory = wsFactory
 
     def loadConfig(self, reload=False):
         """Loads the config from the configuration file."""
@@ -56,7 +62,7 @@ class MinecraftHubServerFactory(ServerFactory):
         Load Balancing magic happens here.
         """
         # Get the current load from servers
-        loadDict = self.mainService.getServiceNamed("worldCommServerFactory").getCurrentLoads()
+        loadDict = self.wsFactory.getCurrentLoads()
         if loadDict == {}:
             # No worldServer connected
             return None
@@ -66,7 +72,7 @@ class MinecraftHubServerFactory(ServerFactory):
         # TODO: Better way?
         return sortedDict.keys()[0]
 
-    def buildUsernames(self, wsID):
+    def buildUsernameList(self, wsID=None):
         """
         Builds a list of {username: client object} by the client list, or
         specify a WorldServer ID to filter.
@@ -84,7 +90,7 @@ class MinecraftHubServerFactory(ServerFactory):
         """
         Leaves the current worldServer.
         """
-        self.mainService.getServiceNamed("worldCommServerFactory").leaveWorldServer(proto, wsID)
+        self.mainService.getServiceNamed("worldServerCommServerFactory").leaveWorldServer(proto, wsID)
 
     def isBanned(self, username):
         return self.meta["bans"].has_key(username)
