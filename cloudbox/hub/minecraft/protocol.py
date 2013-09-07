@@ -61,12 +61,12 @@ class MinecraftHubServerProtocol(Protocol):
                 # Out of range - unknown packet.
                 break
             # See if we have all its data
-            if len(self.buffer) - 1 < len(format):
+            if len(self.buffer) - 1 < len(packetFormat):
                 # Nope, wait a bit
                 return
             # OK, decode the data
-            parts = list(format.decode(self.buffer[1:]))
-            self.buffer = self.buffer[len(format) + 1:]
+            parts = list(packetFormat.decode(self.buffer[1:]))
+            self.buffer = self.buffer[len(packetFormat) + 1:]
 
     ### Message Handling ###
 
