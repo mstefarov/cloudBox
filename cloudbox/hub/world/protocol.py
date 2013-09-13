@@ -5,14 +5,17 @@
 
 from twisted.internet.protocol import Protocol
 
+from cloudbox.common.gpp import MSGPackPacketProcessor
+
 
 class WorldServerCommServerProtocol(Protocol):
     """
     The protocol class for the WorldServer communicator factory.
     """
 
-    def __init__(self):
-        self.servers = []
+    def __init__(self, factory):
+        self.factory = factory
+        self.gpp = MSGPackPacketProcessor(self, self.factory.handlers)
 
     def connectionMade(self):
         """
@@ -24,9 +27,30 @@ class WorldServerCommServerProtocol(Protocol):
         """
         Triggered when data is received.
         """
+        # Pass on the data to the GPP
+        # First, add the data we got onto our internal buffer
+        self.gpp.feed(data)
+        while True:
+            # Ask the GPP to decode the data, if possible
+            response = self.gpp.parseFirstPacket()
+            # Check the response
+            if response == ERR_NOT_ENOUGH_DATA:
+                # Wait a bit
+                break
+            if response == ERR_METHOD_NOT_FOUND:
+                # Warn the user that we have an unhandlable packet
+                self.factory.logger.warning("Received unparsable data. Dropping connection.")
+                return
+
+    ### End-client related functions ###
+
+    def protoDoJoinServer(self, proto):
+        """
+        Makes the protocol join the server.
+        """
         pass
 
-    def doLeaveServer(self, proto):
+    def protoDoLeaveServer(self, proto):
         """
         Makes the protocol leave the server.
         """

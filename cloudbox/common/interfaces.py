@@ -5,17 +5,17 @@
 
 from zope.interface import Interface, Attribute
 
-#noinspection PyMethodParameters,PyMethodParameters
-class IDataHandler(Interface):
+
+class IPacketHandler(Interface):
     """
     Interface for all DataHandlers.
     """
 
     parent = Attribute("The parent the DataHandler belongs to.")
 
-    def parseData(data):
+    def handleData(data):
         """
-        Unserializes data given, and act upon it.
+        Acts upon data.
         """
 
     def packData(data):

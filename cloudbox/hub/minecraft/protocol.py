@@ -53,20 +53,17 @@ class MinecraftHubServerProtocol(Protocol):
         self.buffer += data
         # While there's still data there...
         while self.buffer:
-            # Examine the first byte, to see what the command is
-            packetType = ord(self.buffer[0])
-            try:
-                packetFormat = TYPE_FORMATS[packetType]
-            except KeyError:
-                # Out of range - unknown packet.
-                break
-            # See if we have all its data
-            if len(self.buffer) - 1 < len(packetFormat):
-                # Nope, wait a bit
-                return
-            # OK, decode the data
-            parts = list(packetFormat.decode(self.buffer[1:]))
-            self.buffer = self.buffer[len(packetFormat) + 1:]
+            self.parseFirstPacket()
+
+    ### Packet Handling ###
+
+    def parseFirstPacket(self):
+        """
+        Parses a packet from the buffer.
+        """
+
+
+
 
     ### Message Handling ###
 

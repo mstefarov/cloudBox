@@ -34,5 +34,5 @@ class WorldServerCommServerFactory(ServerFactory):
         Leaves the current world server.
         """
         if not self.worldServers.has_key(wsID):
-            raise KeyError, "World server ID does not exist or is detached"
+            raise KeyError("World server ID does not exist or is detached")
         self.worldServers[wsID].doLeaveServer(proto)

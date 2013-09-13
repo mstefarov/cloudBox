@@ -9,6 +9,10 @@ from cloudbox.common.util import packString
 from cloudbox.constants.classic import FORMAT_LENGTHS
 
 class Format(object):
+    """
+    Packet format used by Minecraft.
+    """
+
     def __init__(self, format):
         self.format = format
 

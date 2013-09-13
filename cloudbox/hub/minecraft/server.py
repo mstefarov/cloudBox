@@ -5,6 +5,7 @@
 
 import operator
 
+# YAMl
 import yaml
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
@@ -51,7 +52,7 @@ class MinecraftHubServerFactory(ServerFactory):
                 # TODO - Hook Call Here
                 return i
         # Server is full
-        raise ServerFull
+        return None
 
     def releaseID(self, id):
         del self.clients[id]
@@ -64,7 +65,7 @@ class MinecraftHubServerFactory(ServerFactory):
         # Get the current load from servers
         loadDict = self.wsFactory.getCurrentLoads()
         if loadDict == {}:
-            # No worldServer connected
+            # No worldServer connected -
             return None
         # Sort the dict
         sortedDict = sorted(loadDict.iteritems(), key=operator.itemgetter(1))

@@ -13,9 +13,9 @@ class WorldServerFactory(Factory):
     I am the world server. I host some worlds, and do calculations about them.
     """
 
-    def __init__(self, parent):
+    def __init__(self):
         self.parent = parent
-        self.worlds = set()
+        self.worlds = []
 
     def loadWorld(self, worldId):
         pass

@@ -8,32 +8,39 @@ import random
 import msgpack
 from zope.interface import implements
 
-from cloudbox.common.interfaces import IDataHandler
+from cloudbox.common.interfaces import IPacketHandler
 
 
-class KeepAliveDataHandler(object):
+class BasePacketHandler(object):
     """
-    DataHandler for keep-alive.
+    Base packet handler.
     """
 
-    implements(IDataHandler)
+    implements(IPacketHandler)
 
     def __init__(self, parent):
         self.parent = parent
 
     def packData(self, data):
+        pass
+
+    def handleData(self, data):
+        pass
+
+
+class KeepAliveDataPacketHandler(BasePacketHandler):
+    """
+    DataHandler for keep-alive.
+    """
+
+    def packData(self, data):
         return {"randomID": random.randint(1, 999999)}
 
 
-class InitHandshakeDataHandler(object):
+class InitHandshakeDataPacketHandler(BasePacketHandler):
     """
     DataHandler for packet HandshakeRequest.
     """
-
-    implements(IDataHandler)
-
-    def __init__(self, parent):
-        self.parent = parent
 
     def packData(self, data):
         return self.parent.packer.pack({
@@ -41,21 +48,16 @@ class InitHandshakeDataHandler(object):
             "clientType": self.parent.parent.TYPE
         })
 
-    def parseData(self, data):
+    def handleData(self, data):
         return self.parent.unpacker.unpack(data)
 
 
-class DisconnectDataHandler(object):
+class DisconnectDataPacketHandler(BasePacketHandler):
     """
     DataHandler for disconnection.
     """
 
-    implements(IDataHandler)
-
-    def __init__(self, parent):
-        self.parent = parent
-
-    def pack(self, data):
+    def packData(self, data):
         return self.parent.packer.pack({
             "disconnectReason": data["reason"]
         })

@@ -9,18 +9,30 @@ from zope.interface import implements
 from cloudbox.common.interfaces import IGeneralPacketProcessor
 
 
-class MSGPackPacketProcessor(object):
+class BaseGeneralPacketProcessor(object):
+    """
+    GPP Base.
+    """
+    implements(IGeneralPacketProcessor)
+
+    def __init__(self, parent, handlers):
+        self.parent = parent
+        self.handlers = handlers
+
+    def parseFirstPacket(self):
+        pass
+
+
+class MSGPackPacketProcessor(BaseGeneralPacketProcessor):
     """
     A General Packet Processor for MSGPack packets.
     """
-    implements(IGeneralPacketProcessor)
 
     def __init__(self, parent, handlers):
         """
         Initialization.
         """
-        self.parent = parent
-        self.handlers = handlers
+        super(MSGPackPacketProcessor, self).__init__(parent, handlers)
         self.unpacker = msgpack.Unpacker()
 
     def feed(self, data):
@@ -39,5 +51,18 @@ class MSGPackPacketProcessor(object):
         if handler not in self.handlers.keys():
             return ERR_METHOD_NOT_FOUND
         # Pass it on to the handler to handle this request
-        ret = self.handlers[handler].parseData(data[1])
+        ret = self.handlers[handler].handleData(data[1])
         return ret
+
+
+class MinecraftClassicPacketProcessor(object):
+    """
+    A General Packet Processor for Minecraft packets.
+    """
+    implements(IGeneralPacketProcessor)
+
+    def __init__(self, parent, handlers, buffer):
+        super(MSGPackPacketProcessor, self).__init__(parent, handlers)
+        # Reference from the protocol - this /may/ cause problems due to lots of objects being created at peak hours,
+        # but it's
+        self.buffer = buffer
