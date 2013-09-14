@@ -55,7 +55,7 @@ class MSGPackPacketProcessor(BaseGeneralPacketProcessor):
         return ret
 
 
-class MinecraftClassicPacketProcessor(object):
+class MinecraftClassicPacketProcessor(BaseGeneralPacketProcessor):
     """
     A General Packet Processor for Minecraft packets.
     """
@@ -66,3 +66,19 @@ class MinecraftClassicPacketProcessor(object):
         # Reference from the protocol - this /may/ cause problems due to lots of objects being created at peak hours,
         # but it's
         self.buffer = buffer
+
+    def parseFirstPacket(self):
+        # Examine the first byte, to see what the command is
+        packetType = ord(self.buffer[0])
+        try:
+            packetFormat = self.handlers[packetType]
+        except KeyError:
+            # Out of range - unknown packet.
+            return
+        # See if we have all its data
+        if len(self.buffer) - 1 < len(packetFormat):
+            # Nope, wait a bit
+            return
+        # OK, decode the data
+        data = list(packetFormat.decode(self.buffer[1:]))
+        self.buffer = self.buffer[len(packetFormat) + 1:]

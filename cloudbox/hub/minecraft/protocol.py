@@ -4,7 +4,9 @@
 # cloudBox Package.
 
 from twisted.internet.protocol import Protocol, connectionDone as _connDone
+
 from cloudbox.constants.cpe import * # Classic things plus CPE things
+from cloudbox.common.gpp import MinecraftClassicPacketProcessor
 
 
 class MinecraftHubServerProtocol(Protocol):
@@ -20,6 +22,8 @@ class MinecraftHubServerProtocol(Protocol):
         self.id = None
         self.username = None
         self.wsID = None # World Server this user belongs to
+        self.identified = False
+        self.gpp = MinecraftClassicPacketProcessor(self, self.handlers, self.buffer)
 
     ### Twisted Methods ###
 
@@ -49,21 +53,9 @@ class MinecraftHubServerProtocol(Protocol):
         """
         Called when data is received.
         """
-        # First, add the data we got onto our internal buffer
+        # Add the data we got onto our internal buffer
         self.buffer += data
-        # While there's still data there...
-        while self.buffer:
-            self.parseFirstPacket()
-
-    ### Packet Handling ###
-
-    def parseFirstPacket(self):
-        """
-        Parses a packet from the buffer.
-        """
-
-
-
+        self.gpp.parseFirstPacket()
 
     ### Message Handling ###
 

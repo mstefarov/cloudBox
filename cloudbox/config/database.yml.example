@@ -1,0 +1,17 @@
+cfginfo:
+    version: 1.0.0
+main:
+    port: 5998
+    driver: mysql
+    access-control: ip-whitelist
+    allowed-ips:
+        - 127.0.0.1
+driver: # Driver-specific configuration
+    # MySQL
+    server-ip: 127.0.0.1
+    username: root
+    password: things
+    database: cloudbox
+    # SQLite
+    file: config/database.db
+    database: cloudbox

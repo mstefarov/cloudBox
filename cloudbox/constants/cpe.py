@@ -3,12 +3,12 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
-from cloudbox.constants.classic import *
+from cloudbox.constants.classic import Format
 
 TYPE_EXTINFO = 16
 TYPE_EXTENTRY = 17
 
-TYPE_FORMATS.update({
+TYPE_FORMATS = {
     TYPE_EXTINFO: Format("sh"),
     TYPE_EXTENTRY: Format("si"),
-})
+}

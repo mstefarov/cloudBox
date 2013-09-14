@@ -18,13 +18,12 @@ class BasePacketHandler(object):
 
     implements(IPacketHandler)
 
-    def __init__(self, parent):
-        self.parent = parent
-
-    def packData(self, data):
+    @staticmethod
+    def packData(data):
         pass
 
-    def handleData(self, data):
+    @staticmethod
+    def handleData(data):
         pass
 
 
@@ -33,7 +32,8 @@ class KeepAliveDataPacketHandler(BasePacketHandler):
     DataHandler for keep-alive.
     """
 
-    def packData(self, data):
+    @staticmethod
+    def packData(data):
         return {"randomID": random.randint(1, 999999)}
 
 
@@ -42,14 +42,17 @@ class InitHandshakeDataPacketHandler(BasePacketHandler):
     DataHandler for packet HandshakeRequest.
     """
 
-    def packData(self, data):
-        return self.parent.packer.pack({
-            "clientName": self.parent.parent.NAME,
-            "clientType": self.parent.parent.TYPE
+    # TODO: What the hell is this?
+    @staticmethod
+    def packData(data):
+        return self.data["_packer"].pack({
+            "clientName": self.data["parent"].NAME,
+            "clientType": self.data["parent"].TYPE
         })
 
-    def handleData(self, data):
-        return self.parent.unpacker.unpack(data)
+    @staticmethod
+    def handleData(data):
+        return self.data["_packer"].unpack(data)
 
 
 class DisconnectDataPacketHandler(BasePacketHandler):
@@ -57,7 +60,8 @@ class DisconnectDataPacketHandler(BasePacketHandler):
     DataHandler for disconnection.
     """
 
-    def packData(self, data):
-        return self.parent.packer.pack({
+    @staticmethod
+    def packData(data):
+        return self.data["_packer"].pack({
             "disconnectReason": data["reason"]
         })

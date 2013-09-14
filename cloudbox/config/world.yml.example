@@ -1,0 +1,5 @@
+cfginfo:
+    version: 1.0.0
+main:
+    hub-ip: 127.0.0.1
+    hub-port: 25000

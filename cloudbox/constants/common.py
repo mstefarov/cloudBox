@@ -42,5 +42,31 @@ ERR_NOT_ENOUGH_DATA = 100
 ERR_METHOD_NOT_FOUND = 101
 ERR_UNABLE_TO_PARSE_DATA = 102
 
-class ServerFull(Exception):
-    pass
+# Format Lengths - used in Format
+
+FORMAT_LENGTHS = {
+    "b": 1,
+    "a": 1024,
+    "s": 64,
+    "h": 2,
+    "i": 4,
+}
+
+# Colours in MC
+
+COLOUR_BLACK = "&0"
+COLOUR_DARKBLUE = "&1"
+COLOUR_DARKGREEN = "&2"
+COLOUR_DARKCYAN = "&3"
+COLOUR_DARKRED = "&4"
+COLOUR_DARKPURPLE = "&5"
+COLOUR_DARKYELLOW = "&6"
+COLOUR_GREY = "&7"
+COLOUR_DARKGREY = "&8"
+COLOUR_BLUE = "&9"
+COLOUR_GREEN = "&a"
+COLOUR_CYAN = "&b"
+COLOUR_RED = "&c"
+COLOUR_PURPLE = "&d"
+COLOUR_YELLOW = "&e"
+COLOUR_WHITE = "&f"

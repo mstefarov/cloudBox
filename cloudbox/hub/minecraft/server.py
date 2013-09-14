@@ -14,9 +14,11 @@ except ImportError:
 
 from twisted.internet.protocol import ServerFactory
 
-from cloudbox.constants.common import ServerFull
+from cloudbox.common.logger import Logger
+from cloudbox.constants.classic import *
+from cloudbox.constants.cpe import *
+from cloudbox.hub.minecraft.handlers import classic, cpe
 from cloudbox.hub.minecraft.protocol import MinecraftHubServerProtocol
-
 
 class MinecraftHubServerFactory(ServerFactory):
     """
@@ -30,7 +32,9 @@ class MinecraftHubServerFactory(ServerFactory):
         self.databaseServer = None
         self.settings = {}
         self.clients = {}
+        self.logger = Logger()
         self.loadConfig()
+        self.handlers = self.buildHandlers()
 
     def setWSFactory(self, wsFactory):
         """
@@ -38,7 +42,31 @@ class MinecraftHubServerFactory(ServerFactory):
         """
         self.wsFactory = wsFactory
 
-    def loadConfig(self, reload=False):
+    def buildHandlers(self):
+        handlers = {
+            TYPE_INITIAL: classic.HandshakePacketHandler,
+            TYPE_KEEPALIVE: classic.KeepAlivePacketHandler,
+            TYPE_LEVELINIT: classic.LevelInitPacketHandler,
+            TYPE_LEVELCHUNK: classic.LevelChunkPacketHandler,
+            TYPE_LEVELFINALIZE: classic.LevelFinalizePacketHandler,
+            TYPE_BLOCKCHANGE: classic.BlockChangePacketHandler,
+            TYPE_BLOCKSET: classic.BlockSetPacketHandler,
+            TYPE_SPAWNPLAYER: classic.SpawnPlayerPacketHandler,
+            TYPE_PLAYERPOS: classic.PlayerPosPacketHandler,
+            TYPE_PLAYERORT: classic.PlayerOrtPacketHandler,
+            TYPE_PLAYERDESPAWN: classic.PlayerDespawnPacketHandler,
+            TYPE_MESSAGE: classic.MessagePacketHandler,
+            TYPE_ERROR: classic.ErrorPacketHandler,
+            TYPE_SETUSERTYPE: classic.SetUserTypePacketHandler,
+        }
+        if self.settings["main"]["enable-cpe"]:
+            handlers.update({
+                TYPE_EXTINFO: cpe.ExtInfoPacketHandler,
+                TYPE_EXTENTRY: cpe.ExtInfoPacketHandler,
+            })
+        return handlers
+
+    def loadConfig(self, reloadConfig=False):
         """Loads the config from the configuration file."""
         self.settings = yaml.load("../config/hub.yaml", Loader)
 

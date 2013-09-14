@@ -4,14 +4,15 @@ main:
     name: cloudBox server
     motd: Stuff is happening!
     public: true
-    max_clients: 128
+    max-clients: 128
     salt: 
     ports: # Ports
         clients: 25565
         worldservers: 25000
+    enable-cpe: true
 heartbeat:
     send_heartbeat: true
-    classicube_heartbeat: true
+    classicube-heartbeat: true
 database:
     enabled: true
     ip: 127.0.0.1

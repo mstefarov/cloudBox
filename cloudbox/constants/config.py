@@ -3,13 +3,12 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
-from cloudbox.common.handlers import BasePacketHandler
+"""
+A package of configuration constants.
+"""
 
-
-class HandshakePacketHandler(BasePacketHandler):
-    """
-    A Handler class for Login requests.
-    """
-
-    def handleData(self, data):
-        pass
+CFGVERSION = {
+    "hub.yaml": (1, 0, 0),
+    "database.yaml": (1, 0, 0),
+    "world.yaml": (1, 0, 0),
+}
