@@ -26,3 +26,7 @@ class LoopRegistry(object):
     def unregisterLoop(self, name):
         self.loops[name].stop()
         del self.loops[name]
+
+    def __iter__(self):
+        for loop in self.loops:
+            yield loop

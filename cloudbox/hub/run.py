@@ -11,12 +11,13 @@ from cloudbox.hub.world.server import WorldServerCommServerFactory
 
 def init(serv):
     # Minecraft part of the Hub
-    mcHubServerFactory = MinecraftHubServerFactory(serv)
-    TCPServer(serv.settings["ports"]["clients"], mcHubServerFactory).setServiceParent(serv)
+    serv.factories["MinecraftHubServerFactory"] = MinecraftHubServerFactory(serv)
+    TCPServer(serv.settings["ports"]["clients"], serv.factories["MinecraftHubServerFactory"]).setServiceParent(serv)
 
     # WorldServer part of the Hub
-    wsCommServerFactory = WorldServerCommServerFactory(serv)
-    TCPServer(serv.settings["ports"]["worldservers"], wsCommServerFactory).setServiceParent(serv)
+    serv.factories["WorldServerCommServerFactory"] = WorldServerCommServerFactory(serv)
+    TCPServer(serv.settings["ports"]["worldservers"],
+              serv.factories["WorldServerCommServerFactory"]).setServiceParent(serv)
 
     # cloudBox, the variable that binds everything together.
     cloudBox = service.Application("cloudBox")

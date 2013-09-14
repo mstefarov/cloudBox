@@ -16,17 +16,18 @@ class WorldServerCommServerFactory(ServerFactory):
 
     protocol = WorldServerCommServerProtocol
 
-    def __init__(self, parent):
-        self.parent = parent
+    def __init__(self, parentService):
+        self.parentService = parentService
         self.worldServers = {}
+        self.logger = Logger()
 
-    def getCurrentLoads(self):
+    def getServerStats(self):
         """
         Gets the current load for each World Server and assemble them in a dict of {wsID: SLA}.
         """
         ret = {}
         for wsID, instance in self.worldServers:
-            ret[wsID] = instance.getCurrentLoad()
+            ret[wsID] = instance.getStats()["sla"]
         return ret
 
     def leaveWorldServer(self, proto, wsID):

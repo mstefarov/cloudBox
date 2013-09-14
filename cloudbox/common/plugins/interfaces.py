@@ -21,8 +21,10 @@ class ICommand(Interface):
     name = Attribute("""Name of the command""")
     aliases = Attribute("""Aliases of the command, if any""")
 
+    def runCommand(parent, data):
+
+
 class IPlayerCommand(ICommand):
     """
     An Interface for all Player Commands.
-    Note that
     """

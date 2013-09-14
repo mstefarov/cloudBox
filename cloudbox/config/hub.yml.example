@@ -10,6 +10,8 @@ main:
         clients: 25565
         worldservers: 25000
     enable-cpe: true
+    entry-mode: solo # Or "distributed"
+    entry-world: default
 heartbeat:
     send_heartbeat: true
     classicube-heartbeat: true

@@ -3,18 +3,10 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
-import operator
-
-# YAMl
-import yaml
-try:
-    from yaml import CLoader as Loader, CDumper as Dumper
-except ImportError:
-    from yaml import Loader, Dumper
-
 from twisted.internet.protocol import ServerFactory
 
 from cloudbox.common.logger import Logger
+from cloudbox.common.loops import LoopRegistry
 from cloudbox.constants.classic import *
 from cloudbox.constants.cpe import *
 from cloudbox.hub.minecraft.handlers import classic, cpe
@@ -26,28 +18,23 @@ class MinecraftHubServerFactory(ServerFactory):
     """
     protocol = MinecraftHubServerProtocol
 
-    def __init__(self, service):
-        self.mainService = service
-        self.wsFactory = None
-        self.databaseServer = None
+    def __init__(self, parentService):
+        self.parentService = parentService
         self.settings = {}
         self.clients = {}
         self.logger = Logger()
-        self.loadConfig()
+        self.loops = LoopRegistry()
         self.handlers = self.buildHandlers()
 
-    def setWSFactory(self, wsFactory):
-        """
-        Called when the World Server Factory is available.
-        """
-        self.wsFactory = wsFactory
+    def getWSFactoryInstance(self):
+        self.parentService.getServiceNamed("WorldServerCommServerFactory")
 
     def buildHandlers(self):
         handlers = {
             TYPE_INITIAL: classic.HandshakePacketHandler,
             TYPE_KEEPALIVE: classic.KeepAlivePacketHandler,
             TYPE_LEVELINIT: classic.LevelInitPacketHandler,
-            TYPE_LEVELCHUNK: classic.LevelChunkPacketHandler,
+            TYPE_LEVELDATA: classic.LevelChunkPacketHandler,
             TYPE_LEVELFINALIZE: classic.LevelFinalizePacketHandler,
             TYPE_BLOCKCHANGE: classic.BlockChangePacketHandler,
             TYPE_BLOCKSET: classic.BlockSetPacketHandler,
@@ -66,10 +53,6 @@ class MinecraftHubServerFactory(ServerFactory):
             })
         return handlers
 
-    def loadConfig(self, reloadConfig=False):
-        """Loads the config from the configuration file."""
-        self.settings = yaml.load("../config/hub.yaml", Loader)
-
     def claimID(self, proto):
         """
         Fetches ID for a client protocol instance.
@@ -82,24 +65,22 @@ class MinecraftHubServerFactory(ServerFactory):
         # Server is full
         return None
 
-    def releaseID(self, id):
-        del self.clients[id]
+    def releaseID(self, clientID):
+        del self.clients[clientID]
 
-    def assignServer(self, proto):
-        """
-        Assign a WorldServer to a user.
-        Load Balancing magic happens here.
-        """
-        # Get the current load from servers
-        loadDict = self.wsFactory.getCurrentLoads()
-        if loadDict == {}:
-            # No worldServer connected -
-            return None
-        # Sort the dict
-        sortedDict = sorted(loadDict.iteritems(), key=operator.itemgetter(1))
-        # Pick the one with the lowest SLA, i.e the first
-        # TODO: Better way?
-        return sortedDict.keys()[0]
+    ### World Server related functions ###
+
+    def getWorldServersAvailability(self):
+        statDict = {}
+        for ws in self.wsFactory.worldServers:
+            statDict[ws.id] = self.getWorldServerAvailability(ws.id)
+
+    def getWorldServerAvailability(self, wsID):
+        return self.wsFactory.worldServers[wsID].getStats()
+
+    def relayMCPacketToWorldServer(self, packetID, packetData):
+
+
 
     def buildUsernameList(self, wsID=None):
         """
@@ -115,26 +96,31 @@ class MinecraftHubServerFactory(ServerFactory):
                 theList[proto.username] = proto
         return theList
 
+    def joinDefaultWorld(self, proto):
+        """
+        Joins the default world.
+        """
+        mode = self.settings["main"]["entry-mode"]
+        if mode == "solo":
+            # Find out which WS has the default world and join it
+            self.things
+        elif mode == "distributed":
+            # Find out which WS has the default world and join any of them.
+            self.otherThings
+
+    def joinWorldServer(self, proto, wsID):
+        """
+        Joins a World Server given its ID.
+        """
+
     def leaveWorldServer(self, proto, wsID):
         """
         Leaves the current worldServer.
         """
-        self.mainService.getServiceNamed("worldServerCommServerFactory").leaveWorldServer(proto, wsID)
+        self.parentService.getServiceNamed("worldServerCommServerFactory").leaveWorldServer(proto, wsID)
 
-    def isBanned(self, username):
-        return self.meta["bans"].has_key(username)
-
-    def banDetails(self, username):
-        try:
-            ret = self.meta["bans"][username]
-        except KeyError:
-            ret = None
-        return ret
-
-    def isIPBanned(self, ip):
-        # Matching dark magic here
-        pass
-
-    def ipBanDetails(self, ip):
-        # moar Matching dark magic
+    def getBans(self, *args):
+        """
+        Fetches the ban information using the information given - username, IP, or both.
+        """
         pass

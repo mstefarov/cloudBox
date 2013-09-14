@@ -5,7 +5,11 @@
 
 import hashlib
 
+from twisted.internet.task import LoopingCall
+
 from cloudbox.common.handlers import BasePacketHandler
+from cloudbox.common.util import packString
+from cloudbox.constants.common import *
 from cloudbox.constants.classic import *
 
 class HandshakePacketHandler(BasePacketHandler):
@@ -16,52 +20,65 @@ class HandshakePacketHandler(BasePacketHandler):
     @staticmethod
     def handleData(data):
         # Get the client's details
-        protocol, self.username, mppass, utype = data
-        if self.parent.identified == True:
-            self.factory.logger.info("Kicked '%s'; already logged in to server" % (self.username))
-            self.sendError("You already logged in!")
+        protocol, data["parent"].username, mppass, utype = data["packetData"]
+        if data["parent"].identified == True:
+            # Sent two login packets - I wonder why?
+            data["parent"].factory.logger.info("Kicked '%s'; already logged in to server" % (data["parent"].username))
+            data["parent"].sendError("You already logged in!")
+
         # Right protocol?
         if protocol != 7:
-            self.sendError("Wrong protocol.")
-            break
-        # Check their password
-        correct_pass = hashlib.md5(self.factory.salt + self.username).hexdigest()[-32:].strip("0")
-        mppass = mppass.strip("0")
-        if not self.transport.getHost().host.split(".")[0:2] == self.ip.split(".")[0:2]:
-            if mppass != correct_pass:
-                self.factory.logger.info(
-                    "Kicked '%s'; invalid password (%s, %s)" % (self.username, mppass, correct_pass))
-                self.sendError("Incorrect authentication, please try again.")
-                return
-        value = self.factory.runHook("prePlayerConnect", {"client": self})
-        if not value and value != None: return
-        self.factory.logger.info("Connected, as '%s'" % self.username)
-        self.identified = True
-        # Are they banned?
-        if self.factory.isBanned(self.username):
-            self.sendError("You are banned: %s" % self.factory.banReason(self.username))
+            data["parent"].sendError("Wrong protocol.")
             return
+
+        # Check their password
+        expectedPassword = hashlib.md5(data["parent"].factory.salt + data["parent"].username).hexdigest()[-32:].strip("0")
+        mppass = mppass.strip("0")
+        # TODO: Rework this - possibly limit to localhost only?
+        #if not data["parent"].transport.getHost().host.split(".")[0:2] == data["parent"].ip.split(".")[0:2]:
+        if mppass != expectedPassword:
+            data["parent"].factory.logger.info(
+                "Kicked '%s'; invalid password (%s, %s)" % (data["parent"].username, mppass, expectedPassword))
+            data["parent"].sendError("Incorrect authentication, please try again.")
+            return
+        #value = data["parent"].factory.runHook("prePlayerConnect", {"client": self})
+
+        # Are they banned?
+        bans = data["parent"].factory.getBans(data["parent"].username, data["parent"].ip)
+        if bans:
+            data["parent"].sendError("You are banned: %s" % bans[-1]["reason"])
+            return
+
         # OK, see if there's anyone else with that username
-        if not self.factory.duplicate_logins and self.username.lower() in self.factory.usernames:
-            self.factory.usernames[self.username.lower()].sendError("You logged in on another computer.")
-        self.factory.usernames[self.username.lower()] = self
-        self.factory.joinWorld(self.factory.default_name, self)
+        if data["parent"].username.lower() in data["parent"].factory.usernames:
+            data["parent"].factory.usernames[data["parent"].username.lower()].sendError(
+                "You logged in on another computer.", dontDisconnect=true)
+            data["parent"].transport.loseConnection() # Terminate now to avoid problems when switching protocol objects
+        data["parent"].factory.usernames[data["parent"].username.lower()] = self
+
+        # All check complete. Request World Server to prepare level
+        data["parent"].factory.joinDefaultWorld(data["parent"])
+
+        # Announce our presence
+        data["parent"].identified = True
+        data["parent"].factory.logger.info("Connected, as '%s'" % data["parent"].username)
+        #for client in data["parent"].factory.usernames.values():
+        #    client.sendServerMessage("%s has come online." % data["parent"].username)
+
         # Send them back our info.
-        self.sendPacked(
-            TYPE_INITIAL,
+        # TODO: CPE
+        #if data["parent"].factory.settings["main"]["enable-cpe"]:
+        #    data["parent"].sendPacket(TYPE_EXTINFO, len(data["parent"].cpeExtensions)
+
+        data["parent"].sendPacket(TYPE_INITIAL, [
             7, # Protocol version
-            packString(self.factory.server_name),
-            packString(self.factory.server_message),
-            100 if (self.isOp() if hasattr(self, "world") else False) else 0,
-        )
-        # Then... stuff
-        for client in self.factory.usernames.values():
-            client.sendServerMessage("%s has come online." % self.username)
-        if self.factory.irc_relay:
-            self.factory.irc_relay.sendServerMessage("07%s has come online." % self.username)
-        reactor.callLater(0.1, self.sendLevel)
-        reactor.callLater(1, self.sendKeepAlive)
-        self.factory.runHook("onPlayerConnect", {"client": self}) # Run the player connect hook
+            packString(data["parent"].factory.settings["main"]["name"]),
+            packString(data["parent"].factory.settings["main"]["motd"]),
+            #100 if (self.isOp() if hasattr(self, "world") else False) else 0, # TODO
+            0
+        ])
+        data["parent"].loops.registerLoop("keepAlive", LoopingCall(data["parent"].sendKeepAlive).start(1))
+        #data["parent"].factory.runHook("onPlayerConnect", {"client": data["parent"]}) # Run the player connect hook
 
     @staticmethod
     def packData(data):
@@ -85,6 +102,7 @@ class LevelInitPacketHandler(BasePacketHandler):
 
     @staticmethod
     def packData(data):
+        pass
 
 
 class LevelChunkPacketHandler(BasePacketHandler):
@@ -110,7 +128,88 @@ class BlockChangePacketHandler(BasePacketHandler):
     """
 
     @staticmethod
-    def handleData():
+    def handleData(data):
+        if data["_serverType"] == SERVER_TYPES["WorldServer"]:
+            x, y, z, created, block = data["packetData"]
+            if not data["parent"].identified:
+                data["parent"].factory.logger.info(
+                    "Kicked '%s'; did not send a login before building" % data["parent"].ip)
+                data["parent"].sendError("Provide an authentication before building.")
+                return
+            if block == 255:
+                # Who sends 255 anyway?
+                data["parent"].factory.logger.debug("%s sent block 255 as 0" % data["parent"].username)
+                block = 0
+            # Check if out of block range or placing invalid blocks
+            if block not in BLOCKS.keys() or block in [BLOCKS_BY_NAME["water"], BLOCKS_BY_NAME["lava"]]:
+                data["parent"].factory.logger.info("Kicked '%s' (IP %s); Tried to place invalid block %s" % (
+                                        data["parent"].username, data["parent"].ip, block))
+                data["parent"].sendError("Invalid blocks are not allowed!")
+                return
+            # TODO Permission Manager
+            if block == 7:  # and not permissionManager.hasWorldPermission(data["parent"].permissions):
+                data["parent"].factory.logger.info("Kicked '%s'; Tried to place bedrock." % data["parent"].ip)
+                data["parent"].sendError("Don't build bedrocks!")
+                return
+            try:
+            # If we're read-only, reverse the change
+                allowBuilding = data["parent"].factory.runHook(
+                    "onBlockClick",
+                    {"x": x, "y": y, "z": z, "block": block, "client": data["parent"]}
+                )
+                if not allowBuilding:
+                    data["parent"].sendBlock(x, y, z)
+                    return
+                # Track if we need to send back the block change
+                overridden = False
+                selectedBlock = block
+                # If we're deleting, block is actually air
+                # (note the selected block is still stored as selectedBlock)
+                if not created:
+                    block = 0
+                # Pre-hook, for stuff like /paint
+                new_block = data["parent"].factory.runHook("preBlockChange",
+                    {"x": x, "y": y, "z": z, "block": block, "selected_block": selectedBlock, "client": data["parent"]})
+                if new_block is not None:
+                    block = new_block
+                    overridden = True
+                # Block detection hook that does not accept any parameters
+                data["parent"].factory.runHook(
+                    "blockDetect",
+                    {"x": x, "y": y, "z": z, "block": block, "client": data["parent"]}
+                )
+                # Call hooks
+                new_block = data["parent"].factory.runHook(
+                    "blockChange",
+                    {"x": x, "y": y, "z": z, "block": block, "selected_block": selectedBlock, "client": data["parent"]}
+                )
+                if new_block is False:
+                    # They weren't allowed to build here!
+                    data["parent"].sendBlock(x, y, z)
+                    return
+                # TODO Use object as hint
+                elif new_block == -1:
+                    # Someone else handled building, just continue
+                    return
+                elif new_block is not None:
+                    if not new_block:
+                        block = new_block
+                        overridden = True
+                # OK, save the block
+                data["parent"].world[x, y, z] = chr(block)
+                # Now, send the custom block back if we need to
+                if overridden:
+                    data["parent"].sendBlock(x, y, z, block)
+            # Out of bounds!
+            except (KeyError, AssertionError):
+                data["parent"].sendPacket(TYPE_BLOCKSET, x, y, z, "\0")
+            # OK, replay changes to others
+            else:
+                data["packetData"].factory.queue.put((data["parent"], TASK_BLOCKSET, (x, y, z, block)))
+        else:
+            # Hand it over to the WorldServer
+            data["parent"].factory.relayMCPacketToWorldServer(TYPE_BLOCKCHANGE, data["packetData"])
+
 
 
 class BlockSetPacketHandler(BasePacketHandler):

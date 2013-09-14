@@ -3,6 +3,13 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
+# YAMl
+import yaml
+try:
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError:
+    from yaml import Loader, Dumper
+
 from twisted.application.internet import TCPClient, TCPServer
 from twisted.application.service import MultiService
 
@@ -26,15 +33,26 @@ class cloudBoxService(MultiService):
         self.serverType = SERVER_TYPES[whoami]
         # Make our loop registry
         self.loops = LoopRegistry()
-        self.factories = list()
+        self.factories = {}
+        self.settings = {}
         self.loadConfig()
         self.initComponents()
 
-    def loadConfig(self):
+    def loadConfig(self, reload=False):
         """
-        Loads the configuration.
+        Loads the configuration file, depending on the SERVER_TYPE of the server.
+        Specify reload to make the function reload the configuration. Note that by specifying reload, the function
+        assumes that the related factories exist.
         """
-        pass
+        if self.serverType == SERVER_TYPES["HubServer"]:
+           self.settings["hub"] = yaml.load("../config/hub.yaml", Loader)
+        elif self.serverType == SERVER_TYPES["DatabaseServer"]:
+            self.settings["db"] = yaml.load("../config/database.yaml", Loader)
+        elif self.serverType == SERVER_TYPES["DatabaseServer"]:
+            self.settings["world"] = yaml.load("../config/world.yaml", Loader)
+        # Send the configuration to the respective factories
+        if self.serverType == SERVER_TYPES["HubServer"]:
+            self.factories["MinecraftHubServerFactory"].settings = self.settings["hub"]
 
     def initComponents(self):
         """
@@ -43,3 +61,6 @@ class cloudBoxService(MultiService):
         if self.serverType == SERVER_TYPES["HubServer"]:
             from cloudbox.hub.run import init as hubInit
             hubInit(self)
+        elif self.serverType == SERVER_TYPES["DatabaseServer"]:
+            from cloudbox.database.server.run import init as dbInit
+            dbInit(self)

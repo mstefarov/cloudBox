@@ -5,6 +5,7 @@
 
 from twisted.internet.protocol import Protocol
 
+from cloudbox.constants.common import *
 from cloudbox.common.gpp import MSGPackPacketProcessor
 
 
@@ -15,6 +16,7 @@ class WorldServerCommServerProtocol(Protocol):
 
     def __init__(self, factory):
         self.factory = factory
+        self.id = None
         self.gpp = MSGPackPacketProcessor(self, self.factory.handlers)
 
     def connectionMade(self):
@@ -38,9 +40,17 @@ class WorldServerCommServerProtocol(Protocol):
                 # Wait a bit
                 break
             if response == ERR_METHOD_NOT_FOUND:
-                # Warn the user that we have an unhandlable packet
+                # Warn the user that we have a weird packet
                 self.factory.logger.warning("Received unparsable data. Dropping connection.")
                 return
+
+    ### World Server related functions ###
+
+    def getStats(self):
+        # TODO
+        return {
+            "players": 0
+        }
 
     ### End-client related functions ###
 

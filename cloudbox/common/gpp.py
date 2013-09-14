@@ -51,8 +51,7 @@ class MSGPackPacketProcessor(BaseGeneralPacketProcessor):
         if handler not in self.handlers.keys():
             return ERR_METHOD_NOT_FOUND
         # Pass it on to the handler to handle this request
-        ret = self.handlers[handler].handleData(data[1])
-        return ret
+        self.handlers[handler].handleData(data[1])
 
 
 class MinecraftClassicPacketProcessor(BaseGeneralPacketProcessor):
@@ -62,9 +61,9 @@ class MinecraftClassicPacketProcessor(BaseGeneralPacketProcessor):
     implements(IGeneralPacketProcessor)
 
     def __init__(self, parent, handlers, buffer):
-        super(MSGPackPacketProcessor, self).__init__(parent, handlers)
-        # Reference from the protocol - this /may/ cause problems due to lots of objects being created at peak hours,
-        # but it's
+        super(BaseGeneralPacketProcessor, self).__init__(parent, handlers)
+        # Reference from the protocol - this /may/ cause problems due to lots of GPPs being created at peak hours,
+        # but it's fine for now - need to monitor
         self.buffer = buffer
 
     def parseFirstPacket(self):
@@ -80,5 +79,11 @@ class MinecraftClassicPacketProcessor(BaseGeneralPacketProcessor):
             # Nope, wait a bit
             return
         # OK, decode the data
-        data = list(packetFormat.decode(self.buffer[1:]))
+        packetData = list(packetFormat.decode(self.buffer[1:]))
         self.buffer = self.buffer[len(packetFormat) + 1:]
+        # Pass it on to the handler to handle this request
+        data = {
+            "parent": self.parent,
+            "packetData": packetData
+        }
+        self.handlers[packetType].handleData(data)
