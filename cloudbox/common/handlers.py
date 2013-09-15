@@ -5,11 +5,10 @@
 
 import random
 
-import msgpack
 from zope.interface import implements
 
 from cloudbox.common.interfaces import IPacketHandler
-
+from cloudbox.constants import common, handlers
 
 class BasePacketHandler(object):
     """
@@ -27,37 +26,42 @@ class BasePacketHandler(object):
         pass
 
 
-class KeepAliveDataPacketHandler(BasePacketHandler):
+class KeepAlivePacketHandler(BasePacketHandler):
     """
-    DataHandler for keep-alive.
+    A Handler class for keep-alive.
     """
 
     @staticmethod
     def packData(data):
-        return {"randomID": random.randint(1, 999999)}
+        return data["_packer"].pack([])
 
 
-class InitHandshakeDataPacketHandler(BasePacketHandler):
+class HandshakePacketHandler(BasePacketHandler):
     """
-    DataHandler for packet HandshakeRequest.
+    A Handler class for packet HandshakeRequest.
     """
+
+    @staticmethod
+    def handleData(data):
+        if data["remoteServerType"] == common.SERVER_TYPES["WorldServer"]:
+            if data["_serverType"] == common.SERVER_TYPES["HubServer"]:
+                # See if they are in our allowed list
+                if not data["parent"].transport.getPeer().host in data["parent"].settings["main"]["allowed-ips"]:
+                    # Refuse connection
+                    data["parent"].sendError("You are not connecting from an authorized IP.")
+                    data["parent"].loseConnection()
 
     # TODO: What the hell is this?
     @staticmethod
     def packData(data):
-        return self.data["_packer"].pack({
-            "clientName": self.data["parent"].NAME,
-            "clientType": self.data["parent"].TYPE
+        return data["_packer"].pack({
+            "clientName": data["parent"].NAME,
+            "clientType": data["parent"].TYPE
         })
 
-    @staticmethod
-    def handleData(data):
-        return self.data["_packer"].unpack(data)
-
-
-class DisconnectDataPacketHandler(BasePacketHandler):
+class DisconnectPacketHandler(BasePacketHandler):
     """
-    DataHandler for disconnection.
+    A Handler class for disconnection.
     """
 
     @staticmethod
@@ -65,3 +69,29 @@ class DisconnectDataPacketHandler(BasePacketHandler):
         return self.data["_packer"].pack({
             "disconnectReason": data["reason"]
         })
+
+class ServerShutdownPacketHandler(BasePacketHandler):
+    """
+    A Handler class for Server Shutdown.
+    """
+
+    @staticmethod
+    def parseData(data):
+        if data["remoteServerType"] == common.SERVER_TYPES["HubServer"]:
+            # Hub Server is closing our connection, why oh why
+            if data["_serverType"] == common.SERVER_TYPES["WorldServer"]:
+                data["parent"].saveAllWorlds()
+                data["parent"].closeAllWorlds()
+            elif data["_serverType"] == common.SERVER_TYPES["DatabaseServer"]:
+                return
+        elif data["remoteServerType"] == common.SERVER_TYPES["WorldServer"]:
+            # World Server is closing our connection, probably shutting down
+            data["parent"].available = False
+
+    @staticmethod
+    def packData(data):
+        return data["packer"].pack([
+            handlers.TYPE_SERVERSHUTDOWN,
+            data["_serverType"]
+        ]
+        )

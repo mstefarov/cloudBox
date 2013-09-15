@@ -5,45 +5,91 @@
 
 import urllib
 
-from zope.interface import implements
-
+from twisted.application.service import Service
 from twisted.internet import reactor
 from twisted.internet.defer import succeed
+from twisted.internet.task import LoopingCall
 from twisted.web.client import Agent
 from twisted.web.http_headers import Headers
+from twisted.web.iweb import IBodyProducer
+from zope.interface import implements
+
+from cloudbox.common.logger import Logger
+from cloudbox.constants.common import VERSION
+
+class _StringProducer(object):
+    implements(IBodyProducer)
+
+    def __init__(self, body):
+        self.body = body
+        self.length = len(body)
+
+    def startProducing(self, consumer):
+        consumer.write(self.body)
+        return succeed(None)
+
+    def pauseProducing(self):
+        pass
+
+    def stopProducing(self):
+        pass
 
 
 class HeartbeatService(object):
-    """I send heartbeats to Minecraft.net/ClassiCube every so often."""
+    """
+    I send heartbeats to Minecraft.net/ClassiCube every so often.
+    """
 
-    def __init__(self, factory, hburl):
-        self.factory = factory
+    def __init__(self, parentService, hburl=""):
+        self.parentService = parentService
         self.hburl = hburl
-        self.logger = factory.logger
+        self.logger = Logger()
         self.agent = Agent(reactor)
+        self.loop = None
+        self.running = False
+
+    ### Twisted related functions ###
+
+    def start(self):
+        self.loop = LoopingCall(self.sendHeartbeat).start(30)  # TODO Dynamic timeframe
+        self.logger.info("HeartbeatService to %s started." % self.hburl)
+        self.running = True
+
+    def stop(self):
+        self.loop.stop()
+        self.logger.info("HeartbeatService to %s stopped." % self.hburl)
+        self.running = False
+
+    def getMCFactoryInstance(self):
+        return self.parentService.factories["MinecraftHubServerFactory"]
 
     @property
     def hbdata(self):
+        mcFactory = self.getMCFactoryInstance()
         return urllib.urlencode({
-            "port": self.factory.server_port,
-            "users": len(self.factory.clients),
-            "max": self.factory.max_clients,
-            "name": self.factory.server_name,
-            "public": self.factory.public,
+            "port": mcFactory.settings["main"]["ports"]["clients"],
+            "users": len(mcFactory.clients),
+            "max": mcFactory.settings["main"]["max-clients"],
+            "name": mcFactory.settings["main"]["name"],
+            "public": mcFactory.settings["main"]["public"],
             "version": 7,
-            "salt": self.factory.salt,
+            "salt": mcFactory.settings["main"]["salt"],
         })
 
     def sendHeartbeat(self):
-        """Sends Heartbeat."""
-        
-    def _sendHeartbeat(self, overrideurl=False):
-        getPage(hburl, method="POST", postdata=self.hbdata,
-            headers={'Content-Type': 'application/x-www-form-urlencoded'}, timeout=30).addCallback(
-            self.heartbeatSentCallback, 0).addErrback(self.heartbeatFailedCallback, 0)
+        """
+        Sends Heartbeat.
+        """
+        self.agent.request(
+            'POST',
+            self.hburl,
+            Headers({'User-Agent': ['cloudBox %s' % VERSION],
+                     'Content-Type': ['application/x-www-form-urlencoded']}),
+            _StringProducer(self.hbdata)
+        ).addCallbacks(self.heartbeatSentCallback).addErrback(self.heartbeatFailedCallback)
 
-    def heartbeatSentCallback(self):
-        pass
+    def heartbeatSentCallback(self, thing):
+        self.logger.info("Heartbeat successfully sent to %s." % self.hburl)
 
-    def heartbeatFailedCallback(self):
-        pass
+    def heartbeatFailedCallback(self, failure):
+        self.logger.warn("Heartbeat failed to send. Error: %s" % str(failure))

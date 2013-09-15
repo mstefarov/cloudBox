@@ -4,3 +4,5 @@ twistd.pid
 dropin.cache
 twistd.py
 .idea/*
+/config/*.yaml
+*.log

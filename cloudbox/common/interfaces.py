@@ -46,7 +46,12 @@ class IGeneralPacketProcessor(Interface):
 
     def packPacket(handler, data):
         """
-        Packs a packet using the given handler..
+        Packs a packet using the given handler.
+        """
+
+    def _populateBaseVariables():
+        """
+        Populates base variables to pass to handlers.
         """
 
 class ILoopRegistry(Interface):

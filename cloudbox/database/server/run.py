@@ -2,3 +2,6 @@
 # cloudBox is licensed under the BSD 2-Clause modified License.
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
+
+def init(serv):
+    return

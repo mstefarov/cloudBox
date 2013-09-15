@@ -17,13 +17,13 @@ class WorldServerCommServerProtocol(Protocol):
     def __init__(self, factory):
         self.factory = factory
         self.id = None
-        self.gpp = MSGPackPacketProcessor(self, self.factory.handlers)
+
 
     def connectionMade(self):
         """
         Triggered when connection is established.
         """
-        pass
+        self.gpp = MSGPackPacketProcessor(self, self.factory.handlers)
 
     def dataReceived(self, data):
         """
@@ -32,17 +32,8 @@ class WorldServerCommServerProtocol(Protocol):
         # Pass on the data to the GPP
         # First, add the data we got onto our internal buffer
         self.gpp.feed(data)
-        while True:
-            # Ask the GPP to decode the data, if possible
-            response = self.gpp.parseFirstPacket()
-            # Check the response
-            if response == ERR_NOT_ENOUGH_DATA:
-                # Wait a bit
-                break
-            if response == ERR_METHOD_NOT_FOUND:
-                # Warn the user that we have a weird packet
-                self.factory.logger.warning("Received unparsable data. Dropping connection.")
-                return
+        # Ask the GPP to decode the data, if possible
+        self.gpp.parseFirstPacket()
 
     ### World Server related functions ###
 

@@ -6,7 +6,9 @@
 from twisted.internet import reactor
 from twisted.internet.protocol import ReconnectingClientFactory
 
+from cloudbox.common.handlers import *
 from cloudbox.common.logger import Logger
+from cloudbox.constants.handlers import *
 from cloudbox.world.protocol import WorldServerProtocol
 
 
@@ -22,6 +24,14 @@ class WorldServerFactory(ReconnectingClientFactory):
         self.logger = Logger()
         self.worlds = []
         self.retryConnection = True
+        self.handlers = self.getHandlers()
+
+    def getHandlers(self):
+        handlers = {
+            TYPE_HANDSHAKE: HandshakeDataPacketHandler,
+            TYPE_SERVERSHUTDOWN: ServerShutdownPacketHandler
+        }
+        return handlers
 
     ### Twisted functions
 
@@ -31,6 +41,7 @@ class WorldServerFactory(ReconnectingClientFactory):
     def buildProtocol(self, addr):
         self.resetDelay()
         proto = WorldServerProtocol()
+        proto.factory = self
         return proto
 
     def quit(self, msg):

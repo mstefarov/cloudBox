@@ -3,7 +3,3 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
-"""
-Constants for World Servers.
-"""
-

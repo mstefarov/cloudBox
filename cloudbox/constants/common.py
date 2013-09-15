@@ -3,6 +3,12 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
+VERSION = "1.0.0 Alpha 1"
+# 2 Major, 2 Minor, 2 Minor, 1 ReleaseType, 1 ReleaseVersion
+# 0 = Alpha, 1 = Beta, 2 = RC, 3 = Release, 4 = Post-release hotfixes
+VERSION_NUMBER = 01000001
+
+
 # Server types
 
 SERVER_TYPES = {
@@ -70,3 +76,4 @@ COLOUR_RED = "&c"
 COLOUR_PURPLE = "&d"
 COLOUR_YELLOW = "&e"
 COLOUR_WHITE = "&f"
+

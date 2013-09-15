@@ -1,0 +1,24 @@
+cfginfo:
+    version: 1.0.0
+main:
+    name: cloudBox server
+    motd: Stuff is happening!
+    public: true
+    max-clients: 128
+    salt: 
+    ports: # Ports
+        clients: 25565
+        worldservers: 25000
+    enable-cpe: true
+    entry-mode: solo # Or "distributed"
+    entry-world: default
+heartbeat:
+    send-heartbeat: true
+    minecraft-heartbeat: true
+    classicube-heartbeat: true
+database:
+    enabled: true
+    ip: 127.0.0.1
+    port: 5998
+log:
+    enable-debug: false

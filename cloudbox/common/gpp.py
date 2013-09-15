@@ -15,12 +15,25 @@ class BaseGeneralPacketProcessor(object):
     """
     implements(IGeneralPacketProcessor)
 
-    def __init__(self, parent, handlers):
+    def __init__(self, parent, handlers, serverType=None):
         self.parent = parent
         self.handlers = handlers
+        if serverType:
+            self.serverType = serverType
+        else:
+            self.serverType = self.parent.serverType
 
     def parseFirstPacket(self):
         pass
+
+    def packPacket(self, packetID, packetData):
+        pass
+
+    def _populateBaseVariables(self):
+        varDict = {
+            "_serverType": self.serverType
+        }
+        return varDict
 
 
 class MSGPackPacketProcessor(BaseGeneralPacketProcessor):
@@ -34,6 +47,7 @@ class MSGPackPacketProcessor(BaseGeneralPacketProcessor):
         """
         super(MSGPackPacketProcessor, self).__init__(parent, handlers)
         self.unpacker = msgpack.Unpacker()
+        self.packer = msgpack.Packer()
 
     def feed(self, data):
         self.unpacker.feed(data)
@@ -45,14 +59,23 @@ class MSGPackPacketProcessor(BaseGeneralPacketProcessor):
         # Try to decode the data
         data = self.unpacker.unpack()
         if not data:
-            return ERR_NOT_ENOUGH_DATA # Try again later
+            return # Try again later
         # Read the handler
         handler = data[0]
         if handler not in self.handlers.keys():
-            return ERR_METHOD_NOT_FOUND
+            # TODO Client identifier
+            self.parent.logger.error("Client sent unparsable data (%s, %s)", (handler, data[1:].join(" ")))
         # Pass it on to the handler to handle this request
-        self.handlers[handler].handleData(data[1])
+        self.handlers[handler].handleData(data[1].append())
 
+    def packPacket(self, packetID, packetData):
+        return
+
+    def _populateBaseVariables(self):
+        varDict = dict(super(MSGPackPacketProcessor, self)._populateBaseVariables().items() + {
+            "_packer": self.packer,
+            "_unpacker": self.unpacker
+        }.items())
 
 class MinecraftClassicPacketProcessor(BaseGeneralPacketProcessor):
     """
@@ -61,7 +84,7 @@ class MinecraftClassicPacketProcessor(BaseGeneralPacketProcessor):
     implements(IGeneralPacketProcessor)
 
     def __init__(self, parent, handlers, buffer):
-        super(BaseGeneralPacketProcessor, self).__init__(parent, handlers)
+        super(MinecraftClassicPacketProcessor, self).__init__(parent, handlers)
         # Reference from the protocol - this /may/ cause problems due to lots of GPPs being created at peak hours,
         # but it's fine for now - need to monitor
         self.buffer = buffer

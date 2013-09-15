@@ -13,11 +13,11 @@ class ExtInfoPacketHandler(BasePacketHandler):
 
     @staticmethod
     def handleData(data):
-
+        pass
 
     @staticmethod
     def packData(data):
-
+        pass
 
 class ExtEntryPacketHandler(BasePacketHandler):
     """
@@ -26,9 +26,8 @@ class ExtEntryPacketHandler(BasePacketHandler):
 
     @staticmethod
     def handleData(data):
-
+        pass
 
     @staticmethod
     def packData(data):
-
-
+        pass

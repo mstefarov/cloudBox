@@ -3,12 +3,33 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
+import os
 import string
 import sys
 import time
+import traceback
 
 from twisted.internet.threads import deferToThread
 from twisted.python import log
+
+def makefile(filename):
+    dir = os.path.dirname(filename)
+    try:
+        os.stat(dir)
+    except:
+        try:
+            os.mkdir(dir)
+        except OSError:
+            pass
+    if not os.path.exists(filename):
+        with open(filename, "w") as f:
+            f.write("")
+
+
+def makefiles(l):
+    for f in l:
+        makefile(f)
+
 
 class _Singleton(type):
     _instances = {}
@@ -16,6 +37,7 @@ class _Singleton(type):
         if cls not in cls._instances:
             cls._instances[cls] = super(_Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
+
 
 class Logger(object):
     """
@@ -65,7 +87,6 @@ class Logger(object):
     nocol = cols
 
     def __init__(self, debug=False, level=20):
-        "Constructor, set everything up"
         self.isDebug = debug
         self.logs = {
             "main": "logs/console/console.log",
@@ -74,13 +95,11 @@ class Logger(object):
             "error": "logs/levels/error.log",
             "critical": "logs/levels/critical.log",
             "debug": "logs/levels/debug.log",
-            "command": "logs/commands.log",
-            "irc": "logs/irc.log"
         }
         makefiles([f for f in self.logs.values()])
         try:
             from colorama import Fore, Back, Style
-        except:
+        except ImportError:
             pass
         else:
             self.cols = {
@@ -123,41 +142,44 @@ class Logger(object):
             }
 
     def stdout(self, data):
-        "Output to stdout, parsing colours."
+        """
+        Output to stdout, parsing colours.
+        """
         origdata = data
         for element in self.cols.keys():
             data = string.replace(data, element, self.cols[element])
         try:
             sys.stdout.write(data + "\n")
         except Exception:
-            log.msg("Unable to write directly to stdout! Data: %s" % origdata)
-            log.err()
+            print("Unable to write directly to stdout! Data: %s" % origdata)
+            print(traceback.format_exc())
 
     def stderr(self, data):
-        "Output to stderr, parsing colours."
+        """
+        Output to stderr, parsing colours.
+        """
         origdata = data
         for element in self.cols.keys():
             data = string.replace(data, element, self.cols[element])
         try:
             sys.stderr.write(data + "\n")
         except Exception as e:
-            self.stdout(data)
+            self.stdout(origdata)
 
     def log(self, data, f):
-        "Outputs to the console.log file"
+        """
+        Write outputs to log files.
+        """
         if f not in self.logs.keys():
             raise ValueError
         for element in self.nocol.keys():
-            data = string.replace(data, element, self.nocol[element]) # Do not log colour codes in file
+            data = string.replace(data, element, self.nocol[element])  # Do not log colour codes in file
         with open(self.logs[f], "a") as fo:
-            def writeFlushAndClose(_fo, _d):
-                _fo.write(_d + "\n")
-                _fo.flush()
-                _fo.close()
-            deferToThread(writeFlushAndClose, fo, data)
+            fo.write(data + "\n")
+            fo.flush()
+            fo.close()
 
     def info(self, data):
-        "INFO level output"
         atime = time.strftime("%d %b (%H:%M:%S)")
         status = " - &2INFO&f - "
         done = "&f" + atime + status + data
@@ -166,7 +188,6 @@ class Logger(object):
         self.stdout(done)
 
     def warn(self, data):
-        "WARN level output"
         atime = time.strftime("%d %b (%H:%M:%S)")
         status = " - &eWARN&f - "
         done = "&f" + atime + status + data
@@ -177,7 +198,6 @@ class Logger(object):
     warning = warn
 
     def error(self, data):
-        "ERROR level output"
         atime = time.strftime("%d %b (%H:%M:%S)")
         status = " - &cERROR&f - "
         done = "&f" + atime + status + data
@@ -186,7 +206,6 @@ class Logger(object):
         self.stdout(done)
 
     def critical(self, data):
-        "CRITICAL level output"
         atime = time.strftime("%d %b (%H:%M:%S)")
         status = " - " + "\x01" + "c" + "CRITICAL&f - "
         done = "&f" + atime + status + data
@@ -194,26 +213,7 @@ class Logger(object):
         self.log(done, "main")
         self.stdout(done)
 
-    def command(self, data):
-        "Output for commands"
-        atime = time.strftime("%d %b (%H:%M:%S)")
-        status = " - " + "\x01" + "g" + "COMMAND&f - "
-        done = "&f" + atime + status + data
-        self.log(done, "command")
-        self.log(done, "main")
-        self.stdout(done)
-
-    def irc(self, data):
-        "IRC output"
-        atime = time.strftime("%d %b (%H:%M:%S)")
-        status = " - " + "\x01" + "d" + "IRC&f - "
-        done = "&f" + atime + status + data
-        self.log(done, "irc")
-        self.log(done, "main")
-        self.stdout(done)
-
     def debug(self, data):
-        "DEBUG level output"
         if self.isDebug:
             atime = time.strftime("%d %b (%H:%M:%S)")
             status = " - &9DEBUG &f - "

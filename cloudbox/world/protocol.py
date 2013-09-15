@@ -6,8 +6,6 @@
 from twisted.internet.protocol import Protocol
 
 from cloudbox.common.gpp import MSGPackPacketProcessor
-from cloudbox.constants import world
-from cloudbox.world.handlers import *
 
 
 class WorldServerProtocol(Protocol):
@@ -15,16 +13,14 @@ class WorldServerProtocol(Protocol):
     I am a Protocol for the World Server.
     """
 
-    def __init__(self, factory):
-        self.factory = factory
+    def __init__(self):
         self.getHandlers()
-        self.gpp = MSGPackPacketProcessor(self, self.handlers)
+        self.available = True  # Set to False to prevent new connections
 
-    def getHandlers(self):
-        handlers = {
-            world.TYPE_SERVERSHUTDOWN: ServerShutdownPacketHandler
-        }
-        return handlers
+    ### Twisted-related functions ###
+
+    def connectionMade(self):
+        self.gpp = MSGPackPacketProcessor(self, self.handlers)
 
     def dataReceived(self, data):
         self.gpp.feed(data)
@@ -34,4 +30,4 @@ class WorldServerProtocol(Protocol):
         self.transport.write(self.handlers[packetID].packData(packetData))
 
     def sendServerShutdown(self):
-        self.sendPacket(world.TYPE_SERVERSHUTDOWN, [])
+        self.sendPacket(constants.world.TYPE_SERVERSHUTDOWN, [])

@@ -16,10 +16,11 @@ class WorldServerCommServerFactory(ServerFactory):
 
     protocol = WorldServerCommServerProtocol
 
-    def __init__(self, parentService):
+    def __init__(self, parentService, settings={}):
         self.parentService = parentService
         self.worldServers = {}
         self.logger = Logger()
+        self.settings = settings
 
     def getServerStats(self):
         """

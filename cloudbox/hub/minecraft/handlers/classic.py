@@ -12,6 +12,7 @@ from cloudbox.common.util import packString
 from cloudbox.constants.common import *
 from cloudbox.constants.classic import *
 
+
 class HandshakePacketHandler(BasePacketHandler):
     """
     A Handler class for Login requests.
@@ -112,6 +113,7 @@ class LevelChunkPacketHandler(BasePacketHandler):
 
     @staticmethod
     def packData(data):
+        pass
 
 
 class LevelFinalizePacketHandler(BasePacketHandler):
@@ -121,6 +123,7 @@ class LevelFinalizePacketHandler(BasePacketHandler):
 
     @staticmethod
     def packData(data):
+        pass
 
 class BlockChangePacketHandler(BasePacketHandler):
     """
@@ -219,6 +222,7 @@ class BlockSetPacketHandler(BasePacketHandler):
 
     @staticmethod
     def packData(data):
+        pass
 
 
 class SpawnPlayerPacketHandler(BasePacketHandler):
@@ -228,6 +232,7 @@ class SpawnPlayerPacketHandler(BasePacketHandler):
 
     @staticmethod
     def packData(data):
+        pass
 
 
 class PlayerPosPacketHandler(BasePacketHandler):
@@ -237,10 +242,10 @@ class PlayerPosPacketHandler(BasePacketHandler):
 
     @staticmethod
     def handleData(data):
-
+        pass
 
     def packData(data):
-
+        pass
 
 class PlayerOrtPacketHandler(BasePacketHandler):
     """
@@ -249,6 +254,7 @@ class PlayerOrtPacketHandler(BasePacketHandler):
 
     @staticmethod
     def packData(data):
+        pass
 
 
 class PlayerDespawnPacketHandler(BasePacketHandler):
@@ -258,7 +264,7 @@ class PlayerDespawnPacketHandler(BasePacketHandler):
 
     @staticmethod
     def packData(data):
-        return TYPE_FORMATS[TYPE_PLAYERDESPAWN].encode(TYPE_PLAYERDESPAWN, data["playerID"])
+        return TYPE_FORMATS[TYPE_PLAYERDESPAWN].encode(data["playerID"])
 
 
 class MessagePacketHandler(BasePacketHandler):
@@ -268,10 +274,11 @@ class MessagePacketHandler(BasePacketHandler):
 
     @staticmethod
     def handleData(data):
-
+        pass
 
     @staticmethod
     def packData(data):
+        pass
 
 
 class ErrorPacketHandler(BasePacketHandler):
@@ -281,7 +288,7 @@ class ErrorPacketHandler(BasePacketHandler):
 
     @staticmethod
     def packData(data):
-
+        return TYPE_FORMATS[TYPE_ERROR].encode(data["error"])
 
 class SetUserTypePacketHandler(BasePacketHandler):
     """
@@ -290,4 +297,4 @@ class SetUserTypePacketHandler(BasePacketHandler):
 
     @staticmethod
     def packData(data):
-
+        pass

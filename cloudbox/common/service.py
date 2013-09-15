@@ -45,14 +45,25 @@ class cloudBoxService(MultiService):
         assumes that the related factories exist.
         """
         if self.serverType == SERVER_TYPES["HubServer"]:
-           self.settings["hub"] = yaml.load("../config/hub.yaml", Loader)
+            with open("config/hub.yaml", "r") as f:
+                s = f.read()
+            self.settings["hub"] = yaml.load(s, Loader)
         elif self.serverType == SERVER_TYPES["DatabaseServer"]:
-            self.settings["db"] = yaml.load("../config/database.yaml", Loader)
+            with open("config/database.yaml", "r") as f:
+                s = f.read()
+            self.settings["db"] = yaml.dump(yaml.load(s, Loader))
         elif self.serverType == SERVER_TYPES["DatabaseServer"]:
-            self.settings["world"] = yaml.load("../config/world.yaml", Loader)
+            with open("config/world.yaml", "r") as f:
+                s = f.read()
+            self.settings["world"] = yaml.dump(yaml.load(s, Loader))
+        if reload:
+            self.rehashConfig()
+
+    def rehashConfig(self):
         # Send the configuration to the respective factories
         if self.serverType == SERVER_TYPES["HubServer"]:
             self.factories["MinecraftHubServerFactory"].settings = self.settings["hub"]
+            self.factories["WorldServerCommServerFactory"].settings = self.settings["hub"]
 
     def initComponents(self):
         """

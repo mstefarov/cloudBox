@@ -18,9 +18,9 @@ class MinecraftHubServerFactory(ServerFactory):
     """
     protocol = MinecraftHubServerProtocol
 
-    def __init__(self, parentService):
+    def __init__(self, parentService, settings={}):
         self.parentService = parentService
-        self.settings = {}
+        self.settings = settings
         self.clients = {}
         self.logger = Logger()
         self.loops = LoopRegistry()
@@ -79,8 +79,7 @@ class MinecraftHubServerFactory(ServerFactory):
         return self.wsFactory.worldServers[wsID].getStats()
 
     def relayMCPacketToWorldServer(self, packetID, packetData):
-
-
+        pass
 
     def buildUsernameList(self, wsID=None):
         """
@@ -112,12 +111,13 @@ class MinecraftHubServerFactory(ServerFactory):
         """
         Joins a World Server given its ID.
         """
+        pass
 
     def leaveWorldServer(self, proto, wsID):
         """
         Leaves the current worldServer.
         """
-        self.parentService.getServiceNamed("worldServerCommServerFactory").leaveWorldServer(proto, wsID)
+        self.getWSFactoryInstance().leaveWorldServer(proto, wsID)
 
     def getBans(self, *args):
         """

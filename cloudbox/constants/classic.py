@@ -92,10 +92,10 @@ BLOCKS = {
 }
 
 BLOCKS_LOOKUP = {}
-for blockID, names in BLOCKS:
+for blockID, names in BLOCKS.items():
     for name in names:
        BLOCKS_LOOKUP[name] = blockID
 
 BLOCKS_BY_NAME = {}
-for blockID, names in BLOCKS:
+for blockID, names in BLOCKS.items():
     BLOCKS_BY_NAME[names[0]] = blockID

@@ -23,10 +23,9 @@ class MinecraftHubServerProtocol(Protocol):
         self.buffer = ""
         self.id = None
         self.username = None
-        self.wsID = None # World Server this user belongs to
+        self.wsID = None  # World Server this user belongs to
         self.identified = False
-        self.state = {} # A special dict used to hold temporary "signals"
-        self.gpp = MinecraftClassicPacketProcessor(self, self.factory.handlers, self.buffer)
+        self.state = {}  # A special dict used to hold temporary "signals"
 
     ### Twisted Methods ###
 
@@ -34,16 +33,14 @@ class MinecraftHubServerProtocol(Protocol):
         """
         Called when a connection is made.
         """
+        self.logger.debug("connectionMade called")
+        self.gpp = MinecraftClassicPacketProcessor(self, self.factory.handlers, self.buffer)
         # Get an ID for ourselves
         self.id = self.factory.claimID(self)
         if self.id is None:
             self.sendError("The server is full.")
             return
-        # Check if there are any open servers
-        self.wsID = self.factory.checkServersAvailability(self)
-        if self.wsID is None:
-            self.sendError("The connector could not find a server that is open.")
-            return
+        self.sendError("Be gone!")
 
     def connectionLost(self, reason=_connDone):
         # Leave the world
@@ -57,6 +54,7 @@ class MinecraftHubServerProtocol(Protocol):
         """
         # Add the data we got onto our internal buffer
         self.buffer += data
+        self.logger.debug(data)
         self.gpp.parseFirstPacket()
 
     ### Message Handling ###
@@ -70,19 +68,22 @@ class MinecraftHubServerProtocol(Protocol):
     def sendPacket(self, packetId, packetData):
         finalPacket = self.handlers[packetId].packData(packetData)
         self.transport.write(chr(packetId) + finalPacket)
+        self.logger.debug(finalPacket)
 
-    def sendError(self, error, dontDisconnect=false):
+    def sendError(self, error, disconnect=True):
         """
         Sends an error the client.
         """
         self.factory.logger.info("Sending error: %s" % error)
-        self.sendPacked(TYPE_ERROR, error)
-        reactor.callLater(0.2, self.transport.loseConnection)
+        self.sendPacket(TYPE_ERROR, error)
+        if disconnect:
+            reactor.callLater(0.2, self.transport.loseConnection)
 
     def sendMessage(self, message):
         """
         Sends a message to the client.
         """
+        self.sendPacket(TYPE_MESSAGE, message)
 
     def sendKeepAlive(self):
         """
