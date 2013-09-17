@@ -6,6 +6,8 @@
 from twisted.internet.protocol import ServerFactory
 
 from cloudbox.common.logger import Logger
+from cloudbox.common.handlers import *
+from cloudbox.constants.handlers import *
 from cloudbox.hub.world.protocol import WorldServerCommServerProtocol
 
 
@@ -16,11 +18,22 @@ class WorldServerCommServerFactory(ServerFactory):
 
     protocol = WorldServerCommServerProtocol
 
-    def __init__(self, parentService, settings={}):
+    def __init__(self, parentService):
         self.parentService = parentService
         self.worldServers = {}
         self.logger = Logger()
-        self.settings = settings
+
+    def startFactory(self):
+        self.handlers = self.getHandlers()
+
+    def getServerType(self):
+        return self.parentService.getServerType
+
+    def getHandlers(self):
+        handlers = {
+            TYPE_HANDSHAKE: HandshakePacketHandler,
+        }
+        return handlers
 
     def getServerStats(self):
         """

@@ -22,3 +22,7 @@ database:
     port: 5998
 log:
     enable-debug: false
+advanced:
+    endpoint-strings:
+        clients:
+        worldservers:

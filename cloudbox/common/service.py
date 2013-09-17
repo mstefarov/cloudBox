@@ -17,7 +17,7 @@ from cloudbox.common.loops import LoopRegistry
 from cloudbox.constants.common import *
 
 
-class cloudBoxService(MultiService):
+class cloudBoxService(object):
     """
     The central hub of all services.
     """
@@ -27,7 +27,6 @@ class cloudBoxService(MultiService):
         Initializes the service.
         Whoami contains the server identifier.
         """
-        MultiService.__init__(self)
         if whoami not in SERVER_TYPES:
             raise ValueError("Server not in valid SERVER_TYPE")
         self.serverType = SERVER_TYPES[whoami]
@@ -35,8 +34,9 @@ class cloudBoxService(MultiService):
         self.loops = LoopRegistry()
         self.factories = {}
         self.settings = {}
-        self.loadConfig()
-        self.initComponents()
+
+    def getServerType(self):
+        return self.serverType
 
     def loadConfig(self, reload=False):
         """
@@ -56,16 +56,15 @@ class cloudBoxService(MultiService):
             with open("config/world.yaml", "r") as f:
                 s = f.read()
             self.settings["world"] = yaml.dump(yaml.load(s, Loader))
-        if reload:
-            self.rehashConfig()
+        self.populateConfig(reload)
 
-    def rehashConfig(self):
+    def populateConfig(self, reload=False):
         # Send the configuration to the respective factories
         if self.serverType == SERVER_TYPES["HubServer"]:
             self.factories["MinecraftHubServerFactory"].settings = self.settings["hub"]
             self.factories["WorldServerCommServerFactory"].settings = self.settings["hub"]
 
-    def initComponents(self):
+    def start(self):
         """
         Initializes components as needed.
         """
@@ -75,3 +74,20 @@ class cloudBoxService(MultiService):
         elif self.serverType == SERVER_TYPES["DatabaseServer"]:
             from cloudbox.database.server.run import init as dbInit
             dbInit(self)
+        elif self.serverType == SERVER_TYPES["WorldServer"]:
+            from cloudbox.world.run import init as worldInit
+            worldInit(self)
+
+    def stop(self):
+        """
+        Initializes components as needed.
+        """
+        if self.serverType == SERVER_TYPES["HubServer"]:
+            from cloudbox.hub.run import shutdown as hubShutdown
+            hubShutdown(self)
+        elif self.serverType == SERVER_TYPES["DatabaseServer"]:
+            from cloudbox.database.server.run import shutdown as dbShutdown
+            dbShutdown(self)
+        elif self.serverType == SERVER_TYPES["WorldServer"]:
+            from cloudbox.world.run import shutdown as worldShutdown
+            worldShutdown(self)

@@ -10,6 +10,7 @@ from zope.interface import implements
 from cloudbox.common.interfaces import IPacketHandler
 from cloudbox.constants import common, handlers
 
+
 class BasePacketHandler(object):
     """
     Base packet handler.

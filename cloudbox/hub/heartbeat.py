@@ -17,6 +17,7 @@ from zope.interface import implements
 from cloudbox.common.logger import Logger
 from cloudbox.constants.common import VERSION
 
+
 class _StringProducer(object):
     implements(IBodyProducer)
 
@@ -40,15 +41,13 @@ class HeartbeatService(object):
     I send heartbeats to Minecraft.net/ClassiCube every so often.
     """
 
-    def __init__(self, parentService, hburl=""):
+    def __init__(self, parentService, hburl):
         self.parentService = parentService
         self.hburl = hburl
         self.logger = Logger()
         self.agent = Agent(reactor)
         self.loop = None
         self.running = False
-
-    ### Twisted related functions ###
 
     def start(self):
         self.loop = LoopingCall(self.sendHeartbeat).start(30)  # TODO Dynamic timeframe

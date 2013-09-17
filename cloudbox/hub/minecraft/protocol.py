@@ -9,7 +9,7 @@ from twisted.internet.protocol import Protocol, connectionDone as _connDone
 from cloudbox.constants.classic import *
 from cloudbox.constants.cpe import *
 from cloudbox.common.gpp import MinecraftClassicPacketProcessor
-
+from cloudbox.common.logger import Logger
 
 class MinecraftHubServerProtocol(Protocol):
     """
@@ -20,12 +20,15 @@ class MinecraftHubServerProtocol(Protocol):
         """
         Initial set-up of the protocol
         """
-        self.buffer = ""
         self.id = None
         self.username = None
         self.wsID = None  # World Server this user belongs to
         self.identified = False
         self.state = {}  # A special dict used to hold temporary "signals"
+        self.logger = Logger()
+
+    def getServerType(self):
+        return self.factory.getServerType()
 
     ### Twisted Methods ###
 
@@ -33,14 +36,12 @@ class MinecraftHubServerProtocol(Protocol):
         """
         Called when a connection is made.
         """
-        self.logger.debug("connectionMade called")
-        self.gpp = MinecraftClassicPacketProcessor(self, self.factory.handlers, self.buffer)
+        self.gpp = MinecraftClassicPacketProcessor(self, self.factory.handlers)
         # Get an ID for ourselves
         self.id = self.factory.claimID(self)
         if self.id is None:
             self.sendError("The server is full.")
             return
-        self.sendError("Be gone!")
 
     def connectionLost(self, reason=_connDone):
         # Leave the world
@@ -53,7 +54,7 @@ class MinecraftHubServerProtocol(Protocol):
         Called when data is received.
         """
         # Add the data we got onto our internal buffer
-        self.buffer += data
+        self.gpp.feed(data)
         self.logger.debug(data)
         self.gpp.parseFirstPacket()
 
@@ -63,7 +64,7 @@ class MinecraftHubServerProtocol(Protocol):
         """
         Sends raw data to the client.
         """
-        self.transport.write(data)
+        self.transport.write(msg)
 
     def sendPacket(self, packetId, packetData):
         finalPacket = self.handlers[packetId].packData(packetData)
@@ -101,3 +102,7 @@ class MinecraftHubServerProtocol(Protocol):
             # Ask the World Server to get the block, and send it.
             # TODO
             return
+
+    ### Relay functions ###
+    def relayClientData(self):
+        pass

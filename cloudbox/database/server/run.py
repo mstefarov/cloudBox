@@ -4,4 +4,7 @@
 # cloudBox Package.
 
 def init(serv):
-    return
+    pass
+
+def shutdown(serv):
+    pass

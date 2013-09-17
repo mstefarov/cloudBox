@@ -23,6 +23,11 @@ class IPacketHandler(Interface):
         Packs the data to the desired wire-transfer format.
         """
 
+    def feed(data):
+        """
+        Feeds data to the internal buffer.
+        """
+
 class IGeneralPacketProcessor(Interface):
     """
     Interface for all GeneralPacketProcessors.

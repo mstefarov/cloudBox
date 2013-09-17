@@ -22,7 +22,7 @@ class HandshakePacketHandler(BasePacketHandler):
     def handleData(data):
         # Get the client's details
         protocol, data["parent"].username, mppass, utype = data["packetData"]
-        if data["parent"].identified == True:
+        if data["parent"].identified:
             # Sent two login packets - I wonder why?
             data["parent"].factory.logger.info("Kicked '%s'; already logged in to server" % (data["parent"].username))
             data["parent"].sendError("You already logged in!")
@@ -82,8 +82,17 @@ class HandshakePacketHandler(BasePacketHandler):
         #data["parent"].factory.runHook("onPlayerConnect", {"client": data["parent"]}) # Run the player connect hook
 
     @staticmethod
+    def unpackData(data):
+        print(data)
+        return TYPE_FORMATS[TYPE_LEVELDATA].decode(data)
+
+    @staticmethod
     def packData(data):
         pass
+
+    @staticmethod
+    def getExpectedLength():
+        return len(TYPE_FORMATS[TYPE_INITIAL])
 
 
 class KeepAlivePacketHandler(BasePacketHandler):
@@ -93,7 +102,11 @@ class KeepAlivePacketHandler(BasePacketHandler):
 
     @staticmethod
     def packData(data):
-        return TYPE_FORMATS[TYPE_KEEPALIVE].encode(TYPE_KEEPALIVE)
+        return ""
+
+    @staticmethod
+    def getExpectedLength():
+        return len(TYPE_FORMATS[TYPE_KEEPALIVE])
 
 
 class LevelInitPacketHandler(BasePacketHandler):
@@ -105,8 +118,12 @@ class LevelInitPacketHandler(BasePacketHandler):
     def packData(data):
         pass
 
+    @staticmethod
+    def getExpectedLength():
+        return len(TYPE_FORMATS[TYPE_LEVELINIT])
 
-class LevelChunkPacketHandler(BasePacketHandler):
+
+class LevelDataPacketHandler(BasePacketHandler):
     """
     A Handler class for Level Chunks.
     """
@@ -114,6 +131,10 @@ class LevelChunkPacketHandler(BasePacketHandler):
     @staticmethod
     def packData(data):
         pass
+
+    @staticmethod
+    def getExpectedLength():
+        return len(TYPE_FORMATS[TYPE_LEVELDATA])
 
 
 class LevelFinalizePacketHandler(BasePacketHandler):
@@ -124,6 +145,11 @@ class LevelFinalizePacketHandler(BasePacketHandler):
     @staticmethod
     def packData(data):
         pass
+
+    @staticmethod
+    def getExpectedLength():
+        return len(TYPE_FORMATS[TYPE_LEVELFINALIZE])
+
 
 class BlockChangePacketHandler(BasePacketHandler):
     """
@@ -213,6 +239,13 @@ class BlockChangePacketHandler(BasePacketHandler):
             # Hand it over to the WorldServer
             data["parent"].factory.relayMCPacketToWorldServer(TYPE_BLOCKCHANGE, data["packetData"])
 
+    @staticmethod
+    def unpackData(data):
+        return TYPE_FORMATS[TYPE_BLOCKCHANGE].decode(data)
+
+    @staticmethod
+    def getExpectedLength():
+        return len(TYPE_FORMATS[TYPE_BLOCKCHANGE])
 
 
 class BlockSetPacketHandler(BasePacketHandler):
@@ -221,8 +254,16 @@ class BlockSetPacketHandler(BasePacketHandler):
     """
 
     @staticmethod
+    def unpackData(data):
+        return TYPE_FORMATS[TYPE_BLOCKSET].decode(data)
+
+    @staticmethod
     def packData(data):
         pass
+
+    @staticmethod
+    def getExpectedLength():
+        return len(TYPE_FORMATS[TYPE_BLOCKSET])
 
 
 class SpawnPlayerPacketHandler(BasePacketHandler):
@@ -234,6 +275,9 @@ class SpawnPlayerPacketHandler(BasePacketHandler):
     def packData(data):
         pass
 
+    @staticmethod
+    def getExpectedLength():
+        return len(TYPE_FORMATS[TYPE_SPAWNPLAYER])
 
 class PlayerPosPacketHandler(BasePacketHandler):
     """
@@ -244,8 +288,18 @@ class PlayerPosPacketHandler(BasePacketHandler):
     def handleData(data):
         pass
 
+    @staticmethod
+    def unpackData(data):
+        return TYPE_FORMATS[TYPE_PLAYERPOS].decode(data)
+
+    @staticmethod
     def packData(data):
         pass
+
+    @staticmethod
+    def getExpectedLength():
+        return len(TYPE_FORMATS[TYPE_PLAYERPOS])
+
 
 class PlayerOrtPacketHandler(BasePacketHandler):
     """
@@ -256,6 +310,10 @@ class PlayerOrtPacketHandler(BasePacketHandler):
     def packData(data):
         pass
 
+    @staticmethod
+    def getExpectedLength():
+        return len(TYPE_FORMATS[TYPE_PLAYERORT])
+
 
 class PlayerDespawnPacketHandler(BasePacketHandler):
     """
@@ -265,6 +323,10 @@ class PlayerDespawnPacketHandler(BasePacketHandler):
     @staticmethod
     def packData(data):
         return TYPE_FORMATS[TYPE_PLAYERDESPAWN].encode(data["playerID"])
+
+    @staticmethod
+    def getExpectedLength():
+        return len(TYPE_FORMATS[TYPE_PLAYERDESPAWN])
 
 
 class MessagePacketHandler(BasePacketHandler):
@@ -277,8 +339,16 @@ class MessagePacketHandler(BasePacketHandler):
         pass
 
     @staticmethod
+    def unpackData(data):
+        return TYPE_FORMATS[TYPE_MESSAGE].decode(data)
+
+    @staticmethod
     def packData(data):
         pass
+
+    @staticmethod
+    def getExpectedLength():
+        return len(TYPE_FORMATS[TYPE_MESSAGE])
 
 
 class ErrorPacketHandler(BasePacketHandler):
@@ -290,11 +360,16 @@ class ErrorPacketHandler(BasePacketHandler):
     def packData(data):
         return TYPE_FORMATS[TYPE_ERROR].encode(data["error"])
 
+    @staticmethod
+    def getExpectedLength():
+        return len(TYPE_FORMATS[TYPE_ERROR])
+
+
 class SetUserTypePacketHandler(BasePacketHandler):
     """
     A Handler for setting op permissions.
     """
 
     @staticmethod
-    def packData(data):
-        pass
+    def getExpectedLength():
+        return len(TYPE_FORMATS[TYPE_SETUSERTYPE])

@@ -14,10 +14,11 @@ class WorldServerCommServerProtocol(Protocol):
     The protocol class for the WorldServer communicator factory.
     """
 
-    def __init__(self, factory):
-        self.factory = factory
-        self.id = None
+    def __init__(self):
+        self.wsID = None
 
+    def getServerType(self):
+        return self.factory.getServerType
 
     def connectionMade(self):
         """

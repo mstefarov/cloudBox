@@ -7,6 +7,8 @@ import msgpack
 from zope.interface import implements
 
 from cloudbox.common.interfaces import IGeneralPacketProcessor
+from cloudbox.common.logger import Logger
+from cloudbox.constants.classic import *
 
 
 class BaseGeneralPacketProcessor(object):
@@ -18,10 +20,14 @@ class BaseGeneralPacketProcessor(object):
     def __init__(self, parent, handlers, serverType=None):
         self.parent = parent
         self.handlers = handlers
+        self.logger = Logger()
         if serverType:
             self.serverType = serverType
         else:
-            self.serverType = self.parent.serverType
+            self.serverType = self.parent.getServerType()
+
+    def feed(self, data):
+        pass
 
     def parseFirstPacket(self):
         pass
@@ -77,17 +83,21 @@ class MSGPackPacketProcessor(BaseGeneralPacketProcessor):
             "_unpacker": self.unpacker
         }.items())
 
+
 class MinecraftClassicPacketProcessor(BaseGeneralPacketProcessor):
     """
     A General Packet Processor for Minecraft packets.
     """
     implements(IGeneralPacketProcessor)
 
-    def __init__(self, parent, handlers, buffer):
+    def __init__(self, parent, handlers):
         super(MinecraftClassicPacketProcessor, self).__init__(parent, handlers)
         # Reference from the protocol - this /may/ cause problems due to lots of GPPs being created at peak hours,
         # but it's fine for now - need to monitor
-        self.buffer = buffer
+        self.buffer = ""
+
+    def feed(self, data):
+        self.buffer += data
 
     def parseFirstPacket(self):
         # Examine the first byte, to see what the command is
@@ -98,11 +108,12 @@ class MinecraftClassicPacketProcessor(BaseGeneralPacketProcessor):
             # Out of range - unknown packet.
             return
         # See if we have all its data
-        if len(self.buffer) - 1 < len(packetFormat):
+        if len(self.buffer) - 1 < packetFormat.getExpectedLength():
             # Nope, wait a bit
             return
+        self.logger.debug(str(len(self.buffer)) + " " + self.buffer[0])
         # OK, decode the data
-        packetData = list(packetFormat.decode(self.buffer[1:]))
+        packetData = list(packetFormat.unpackData(self.buffer[1:]))
         self.buffer = self.buffer[len(packetFormat) + 1:]
         # Pass it on to the handler to handle this request
         data = {

@@ -18,23 +18,27 @@ class MinecraftHubServerFactory(ServerFactory):
     """
     protocol = MinecraftHubServerProtocol
 
-    def __init__(self, parentService, settings={}):
+    def __init__(self, parentService):
         self.parentService = parentService
-        self.settings = settings
         self.clients = {}
         self.logger = Logger()
         self.loops = LoopRegistry()
+
+    def startFactory(self):
         self.handlers = self.buildHandlers()
 
     def getWSFactoryInstance(self):
-        self.parentService.getServiceNamed("WorldServerCommServerFactory")
+        return self.parentService.factories["WorldServerCommServerFactory"]
+
+    def getServerType(self):
+        return self.parentService.getServerType()
 
     def buildHandlers(self):
         handlers = {
             TYPE_INITIAL: classic.HandshakePacketHandler,
             TYPE_KEEPALIVE: classic.KeepAlivePacketHandler,
             TYPE_LEVELINIT: classic.LevelInitPacketHandler,
-            TYPE_LEVELDATA: classic.LevelChunkPacketHandler,
+            TYPE_LEVELDATA: classic.LevelDataPacketHandler,
             TYPE_LEVELFINALIZE: classic.LevelFinalizePacketHandler,
             TYPE_BLOCKCHANGE: classic.BlockChangePacketHandler,
             TYPE_BLOCKSET: classic.BlockSetPacketHandler,
@@ -57,7 +61,7 @@ class MinecraftHubServerFactory(ServerFactory):
         """
         Fetches ID for a client protocol instance.
         """
-        for i in range(1, self.settings["main"]["max_clients"] + 1):
+        for i in range(1, self.settings["main"]["max-clients"] + 1):
             if i not in self.clients:
                 self.clients[i] = {"username": proto.username, "protocol": proto}
                 # TODO - Hook Call Here

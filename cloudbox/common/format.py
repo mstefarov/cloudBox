@@ -8,6 +8,7 @@ import struct
 from cloudbox.common.util import packString
 from cloudbox.constants.common import FORMAT_LENGTHS
 
+
 class Format(object):
     """
     Packet format used by Minecraft.
@@ -25,30 +26,30 @@ class Format(object):
     def decode(self, data):
         for char in self.format:
             if char == "b":
-                yield struct.unpack("!B", data[0])[0]
+                yield struct.unpack(">B", data[0])[0]
             elif char == "a":
                 yield data[:1024]
             elif char == "s":
                 yield data[:64].strip()
             elif char == "h":
-                yield struct.unpack("!h", data[:2])[0]
+                yield struct.unpack(">h", data[:2])[0]
             elif char == "i":
-                yield struct.unpack("!i", data[:4])[0]
+                yield struct.unpack(">i", data[:4])[0]
             data = data[FORMAT_LENGTHS[char]:]
 
     def encode(self, *args):
         assert len(self.format) == len(args)
         data = ""
         for char, arg in zip(self.format, args):
-            if char == "a": # Array, 1024 long
+            if char == "a":  # Array, 1024 long
                 data += packString(arg[:1024], length=1024, packWith="\0")
-            elif char == "s": # String, 64 long
+            elif char == "s":  # String, 64 long
                 data += packString(arg[:64])
-            elif char == "h": # Short
-                data += struct.pack("!h", arg)
-            elif char == "i": # Integer
-                data += struct.pack("!i", arg)
-            elif char == "b": # Byte
+            elif char == "h":  # Short
+                data += struct.pack(">h", arg)
+            elif char == "i":  # Integer
+                data += struct.pack(">i", arg)
+            elif char == "b":  # Byte
                 if isinstance(arg, int):
                     data += chr(arg)
                 elif isinstance(arg, str):

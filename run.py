@@ -31,8 +31,8 @@ else:
 logger.info("Starting cloudBox Version %s - This is the %s" % (VERSION, sys.argv[1]))
 
 # TODO - Less hack required
-service = cloudBoxService(sys.argv[1])
-application = Application("cloudBox")
-service.setServiceParent(application)
-
-reactor.run()
+try:
+    service = cloudBoxService(sys.argv[1])
+    service.start()
+except (KeyboardInterrupt, SystemExit):
+    service.stop()
