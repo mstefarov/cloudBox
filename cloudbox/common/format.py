@@ -26,6 +26,7 @@ class Format(object):
     def decode(self, data):
         for char in self.format:
             if char == "b":
+                print data
                 yield struct.unpack(">B", data[0])[0]
             elif char == "a":
                 yield data[:1024]

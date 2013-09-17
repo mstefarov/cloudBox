@@ -111,7 +111,6 @@ class MinecraftClassicPacketProcessor(BaseGeneralPacketProcessor):
         if len(self.buffer) - 1 < packetFormat.getExpectedLength():
             # Nope, wait a bit
             return
-        self.logger.debug(str(len(self.buffer)) + " " + self.buffer[0])
         # OK, decode the data
         packetData = list(packetFormat.unpackData(self.buffer[1:]))
         self.buffer = self.buffer[len(packetFormat) + 1:]

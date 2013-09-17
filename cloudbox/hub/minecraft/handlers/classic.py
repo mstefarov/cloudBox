@@ -83,8 +83,7 @@ class HandshakePacketHandler(BasePacketHandler):
 
     @staticmethod
     def unpackData(data):
-        print(data)
-        return TYPE_FORMATS[TYPE_LEVELDATA].decode(data)
+        return TYPE_FORMATS[TYPE_INITIAL].decode(data)
 
     @staticmethod
     def packData(data):
@@ -278,6 +277,7 @@ class SpawnPlayerPacketHandler(BasePacketHandler):
     @staticmethod
     def getExpectedLength():
         return len(TYPE_FORMATS[TYPE_SPAWNPLAYER])
+
 
 class PlayerPosPacketHandler(BasePacketHandler):
     """
