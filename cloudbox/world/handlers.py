@@ -3,3 +3,19 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
+from cloudbox.common.handlers import BasePacketHandler
+
+
+class StateUpdatePacketHandler(BasePacketHandler):
+
+    @staticmethod
+    def handleData(data):
+        pass
+
+    @staticmethod
+    def unpackData(data):
+        pass
+
+    @staticmethod
+    def packData(data):
+        pass

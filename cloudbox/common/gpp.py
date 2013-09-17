@@ -108,12 +108,13 @@ class MinecraftClassicPacketProcessor(BaseGeneralPacketProcessor):
             # Out of range - unknown packet.
             return
         # See if we have all its data
-        if len(self.buffer) - 1 < packetFormat.getExpectedLength():
+        expectedLength = packetFormat.getExpectedLength()
+        if len(self.buffer) - 1 < expectedLength:
             # Nope, wait a bit
             return
         # OK, decode the data
         packetData = list(packetFormat.unpackData(self.buffer[1:]))
-        self.buffer = self.buffer[len(packetFormat) + 1:]
+        self.buffer = self.buffer[expectedLength + 1:]
         # Pass it on to the handler to handle this request
         data = {
             "parent": self.parent,

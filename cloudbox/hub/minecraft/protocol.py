@@ -10,25 +10,12 @@ from cloudbox.constants.classic import *
 from cloudbox.constants.cpe import *
 from cloudbox.common.gpp import MinecraftClassicPacketProcessor
 from cloudbox.common.logger import Logger
+from cloudbox.common.loops import LoopRegistry
 
 class MinecraftHubServerProtocol(Protocol):
     """
     Main protocol class for communicating with clients.
     """
-
-    def __init__(self):
-        """
-        Initial set-up of the protocol
-        """
-        self.id = None
-        self.username = None
-        self.wsID = None  # World Server this user belongs to
-        self.identified = False
-        self.state = {}  # A special dict used to hold temporary "signals"
-        self.logger = Logger()
-
-    def getServerType(self):
-        return self.factory.getServerType()
 
     ### Twisted Methods ###
 
@@ -36,12 +23,20 @@ class MinecraftHubServerProtocol(Protocol):
         """
         Called when a connection is made.
         """
-        self.gpp = MinecraftClassicPacketProcessor(self, self.factory.handlers)
+        self.id = None
+        self.username = None
+        self.wsID = None  # World Server this user belongs to
+        self.identified = False
+        self.state = {}  # A special dict used to hold temporary "signals"
+        self.logger = Logger()
+        self.loops = LoopRegistry()
         # Get an ID for ourselves
         self.id = self.factory.claimID(self)
         if self.id is None:
             self.sendError("The server is full.")
             return
+        self.ip = self.transport.getPeer().host
+        self.gpp = MinecraftClassicPacketProcessor(self, self.factory.handlers)
 
     def connectionLost(self, reason=_connDone):
         # Leave the world
@@ -58,6 +53,9 @@ class MinecraftHubServerProtocol(Protocol):
         self.logger.debug(data)
         self.gpp.parseFirstPacket()
 
+    def getServerType(self):
+        return self.factory.getServerType()
+
     ### Message Handling ###
 
     def send(self, msg):
@@ -67,37 +65,39 @@ class MinecraftHubServerProtocol(Protocol):
         self.transport.write(msg)
 
     def sendPacket(self, packetId, packetData):
-        finalPacket = self.handlers[packetId].packData(packetData)
+        finalPacket = self.factory.handlers[packetId].packData(packetData)
         self.transport.write(chr(packetId) + finalPacket)
         self.logger.debug(finalPacket)
 
-    def sendError(self, error, disconnect=True):
+    def sendError(self, error, disconnectNow=False):
         """
         Sends an error the client.
         """
         self.factory.logger.info("Sending error: %s" % error)
-        self.sendPacket(TYPE_ERROR, error)
-        if disconnect:
+        self.sendPacket(TYPE_ERROR, {"error": error})
+        if disconnectNow:
+            self.transport.loseConnection()
+        else:
             reactor.callLater(0.2, self.transport.loseConnection)
 
     def sendMessage(self, message):
         """
         Sends a message to the client.
         """
-        self.sendPacket(TYPE_MESSAGE, message)
+        self.sendPacket(TYPE_MESSAGE, {"message": message})
 
     def sendKeepAlive(self):
         """
         Sends a ping to the client.
         """
-        self.sendPacket(TYPE_KEEPALIVE, [])
+        self.sendPacket(TYPE_KEEPALIVE, {})
 
     def sendBlock(self, x, y, z, block=None):
         """
         Sends a block.
         """
         if block is not None:
-            self.sendPacket(TYPE_BLOCKSET, [x, y, z, block])
+            self.sendPacket(TYPE_BLOCKSET, {"x": x, "y": y, "z": z, "block": block})
         else:
             # Ask the World Server to get the block, and send it.
             # TODO

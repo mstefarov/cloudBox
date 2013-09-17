@@ -22,6 +22,7 @@ class LoopRegistry(object):
         if not isinstance(obj, LoopingCall):
             raise TypeError
         self.loops[name] = obj
+        return self.loops[name]  # For laziness
 
     def unregisterLoop(self, name):
         self.loops[name].stop()

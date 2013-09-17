@@ -63,7 +63,7 @@ class MinecraftHubServerFactory(ServerFactory):
         """
         for i in range(1, self.settings["main"]["max-clients"] + 1):
             if i not in self.clients:
-                self.clients[i] = {"username": proto.username, "protocol": proto}
+                self.clients[i] = {"username": None, "protocol": proto}
                 # TODO - Hook Call Here
                 return i
         # Server is full
@@ -91,18 +91,20 @@ class MinecraftHubServerFactory(ServerFactory):
         specify a WorldServer ID to filter.
         """
         theList = dict()
-        for client, proto in self.clients:
-            if wsID:
-                if proto.wsID == wsID:
-                    theList[proto.username] = proto
-            else:
-                theList[proto.username] = proto
+        for cID, cEntry in self.clients.items():
+            if cEntry["username"]:
+                if wsID:
+                    if cEntry["proto"].wsID == wsID:
+                        theList[cEntry["username"].lower()] = cEntry["protocol"]
+                else:
+                    theList[cEntry["username"].lower()] = cEntry["protocol"]
         return theList
 
     def joinDefaultWorld(self, proto):
         """
         Joins the default world.
         """
+        return
         mode = self.settings["main"]["entry-mode"]
         if mode == "solo":
             # Find out which WS has the default world and join it

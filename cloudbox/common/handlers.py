@@ -95,4 +95,4 @@ class ServerShutdownPacketHandler(BasePacketHandler):
             handlers.TYPE_SERVERSHUTDOWN,
             data["_serverType"]
         ]
-        )
+    )

@@ -5,7 +5,7 @@ main:
     motd: Stuff is happening!
     public: true
     max-clients: 128
-    salt: 
+    salt: Select this and mash your keyboard.
     ports: # Ports
         clients: 25565
         worldservers: 25000

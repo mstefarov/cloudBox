@@ -24,7 +24,7 @@ class HandshakePacketHandler(BasePacketHandler):
         protocol, data["parent"].username, mppass, utype = data["packetData"]
         if data["parent"].identified:
             # Sent two login packets - I wonder why?
-            data["parent"].factory.logger.info("Kicked '%s'; already logged in to server" % (data["parent"].username))
+            data["parent"].factory.logger.info("Kicked '%s'; already logged in to server" % data["parent"].username)
             data["parent"].sendError("You already logged in!")
 
         # Right protocol?
@@ -33,7 +33,8 @@ class HandshakePacketHandler(BasePacketHandler):
             return
 
         # Check their password
-        expectedPassword = hashlib.md5(data["parent"].factory.salt + data["parent"].username).hexdigest()[-32:].strip("0")
+        expectedPassword = hashlib.md5(data["parent"].factory.settings["main"]["salt"] +
+                                       data["parent"].username).hexdigest()[-32:].strip("0")
         mppass = mppass.strip("0")
         # TODO: Rework this - possibly limit to localhost only?
         #if not data["parent"].transport.getHost().host.split(".")[0:2] == data["parent"].ip.split(".")[0:2]:
@@ -51,17 +52,19 @@ class HandshakePacketHandler(BasePacketHandler):
             return
 
         # OK, see if there's anyone else with that username
-        if data["parent"].username.lower() in data["parent"].factory.usernames:
-            data["parent"].factory.usernames[data["parent"].username.lower()].sendError(
-                "You logged in on another computer.", dontDisconnect=true)
-            data["parent"].transport.loseConnection() # Terminate now to avoid problems when switching protocol objects
-        data["parent"].factory.usernames[data["parent"].username.lower()] = self
+        usernameList = data["parent"].factory.buildUsernameList()
+        if data["parent"].username.lower() in usernameList:
+            # Kick the other guy out
+            data["parent"].factory.clients[usernameList[data["parent"].username.lower()].id]["protocol"].sendError(
+                "You logged in on another computer.", disconnectNow=True)
+            return
 
         # All check complete. Request World Server to prepare level
+        data["parent"].identified = True
+        data["parent"].factory.clients[data["parent"].id]["username"] = data["parent"].username
         data["parent"].factory.joinDefaultWorld(data["parent"])
 
         # Announce our presence
-        data["parent"].identified = True
         data["parent"].factory.logger.info("Connected, as '%s'" % data["parent"].username)
         #for client in data["parent"].factory.usernames.values():
         #    client.sendServerMessage("%s has come online." % data["parent"].username)
@@ -71,14 +74,14 @@ class HandshakePacketHandler(BasePacketHandler):
         #if data["parent"].factory.settings["main"]["enable-cpe"]:
         #    data["parent"].sendPacket(TYPE_EXTINFO, len(data["parent"].cpeExtensions)
 
-        data["parent"].sendPacket(TYPE_INITIAL, [
-            7, # Protocol version
-            packString(data["parent"].factory.settings["main"]["name"]),
-            packString(data["parent"].factory.settings["main"]["motd"]),
-            #100 if (self.isOp() if hasattr(self, "world") else False) else 0, # TODO
-            0
-        ])
-        data["parent"].loops.registerLoop("keepAlive", LoopingCall(data["parent"].sendKeepAlive).start(1))
+        data["parent"].sendPacket(TYPE_INITIAL, {
+            "protocolVersion": 7, # Protocol version
+            "serverName": packString(data["parent"].factory.settings["main"]["name"]),
+            "serverMOTD": packString(data["parent"].factory.settings["main"]["motd"]),
+            #"userPermission": 100 if (self.isOp() if hasattr(self, "world") else False) else 0, # TODO
+            "userPermission": 0
+        })
+        data["parent"].loops.registerLoop("keepAlive", LoopingCall(data["parent"].sendKeepAlive)).start(1)
         #data["parent"].factory.runHook("onPlayerConnect", {"client": data["parent"]}) # Run the player connect hook
 
     @staticmethod
@@ -87,7 +90,10 @@ class HandshakePacketHandler(BasePacketHandler):
 
     @staticmethod
     def packData(data):
-        pass
+        return TYPE_FORMATS[TYPE_INITIAL].encode(data["protocolVersion"],
+                                                 data["serverName"],
+                                                 data["serverMOTD"],
+                                                 data["userPermission"])
 
     @staticmethod
     def getExpectedLength():

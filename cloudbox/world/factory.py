@@ -3,12 +3,12 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
-from twisted.internet import reactor
 from twisted.internet.protocol import ReconnectingClientFactory
 
 from cloudbox.common.handlers import *
 from cloudbox.common.logger import Logger
 from cloudbox.constants.handlers import *
+from cloudbox.world.handlers import *
 from cloudbox.world.protocol import WorldServerProtocol
 
 
@@ -23,12 +23,14 @@ class WorldServerFactory(ReconnectingClientFactory):
         self.parentService = parentService
         self.logger = Logger()
         self.worlds = []
+        self.clients = {} # {clientID: client ID (assigned by HubServer), clientStates: dict of states}
         self.retryConnection = True
         self.handlers = self.getHandlers()
 
     def getHandlers(self):
         handlers = {
-            TYPE_HANDSHAKE: HandshakeDataPacketHandler,
+            TYPE_HANDSHAKE: HandshakePacketHandler,
+            TYPE_STATEUPDATE: StateUpdatePacketHandler
             TYPE_SERVERSHUTDOWN: ServerShutdownPacketHandler
         }
         return handlers
