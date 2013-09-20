@@ -23,15 +23,15 @@ class WorldServerFactory(ReconnectingClientFactory):
         self.parentService = parentService
         self.logger = Logger()
         self.worlds = []
-        self.clients = {} # {clientID: client ID (assigned by HubServer), clientStates: dict of states}
+        self.clients = {}  # {clientID: client ID (assigned by HubServer), clientStates: dict of states}
         self.retryConnection = True
         self.handlers = self.getHandlers()
 
     def getHandlers(self):
         handlers = {
             TYPE_HANDSHAKE: HandshakePacketHandler,
-            TYPE_STATEUPDATE: StateUpdatePacketHandler
-            TYPE_SERVERSHUTDOWN: ServerShutdownPacketHandler
+            TYPE_STATEUPDATE: StateUpdatePacketHandler,
+            TYPE_SERVERDISCONNECT: ServerShutdownPacketHandler
         }
         return handlers
 
@@ -60,23 +60,23 @@ class WorldServerFactory(ReconnectingClientFactory):
             connector.connect()
 
     def clientConnectionFailed(self, connector, reason):
-       self.logger.crtical("Connection to HubServer failed: %s" % reason)
-       connector.connect()
+        self.logger.critical("Connection to HubServer failed: %s" % reason)
+        connector.connect()
 
     def loadWorld(self, worldId):
-       pass
+        pass
 
     def unloadWorld(self, worldId):
-       pass
+        pass
 
     def packWorld(self, worldId):
-       """
-       Packs the world as a world stream to be sent to Hub Server.
-       """
-       pass
+        """
+        Packs the world as a world stream to be sent to Hub Server.
+        """
+        pass
 
     def unpackWorld(self, worldStream):
-       """
-       Unpacks the world stream sent from the Hub server.
-       """
-       pass
+        """
+        Unpacks the world stream sent from the Hub server.
+        """
+        pass

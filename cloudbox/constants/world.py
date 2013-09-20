@@ -6,4 +6,3 @@
 """
 Constants for World Servers.
 """
-
