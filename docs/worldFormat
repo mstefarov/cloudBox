@@ -1,0 +1,44 @@
+_ROOT: Compound[
+    CLOUDBOX_MAGIC: Int() // 3735928559 - DEADBEEF
+    LEVEL_VERSION: Byte // Version of level file.
+    Level: Compound[
+        X: Short() // Length of level. 0 - 2047
+        Y: Short() // Width of level. 0 - 2047
+        Z: Short() // Height of level. 0 - 2047
+        BlockArray: List(Compound)[
+            [
+                ZIndex: Short() // Valid numbers range from 0 to 2047.
+                // 4 is chosen because it is big enough to fit in all possible blocks in the forseeable future.
+                // Block storage start at 0 and for blocks bigger than 32768, storage starts at -32768 and
+                // goes up until -1.
+                BlockData: ByteArray(4)
+            ]
+            ...
+        ]
+        Metadata: Compound[
+            // Plugins can add their metadata here.
+            pluginName: Compound[
+                // Format is up to plugin authors
+            ]
+        ]
+        BlockMetadata: List(Compound)[
+            // Each item in the list represents one block. Plugin authors wishing to add metadata to the same block will
+            // use the same entry.
+            [
+                ID: Long() // Long to ensure it is possible to give an ID for every block.
+                X: Short()
+                Y: Short()
+                Z: Short()
+                Content: Compound[
+                    pluginName: Compound[
+                        // Format decided by plugin authors
+                    ]
+                ]
+            ]
+        ]
+        BlockMetadataAI: Long() // Next ID to use, similar to AUTO_INCREMENT in RDBMSs.
+        // Optional items
+        // Contains all BlockMetadata IDs that were once used but have been deleted.
+        _freeBlockMetadataEntries: ByteArray(8)
+    ]
+]
