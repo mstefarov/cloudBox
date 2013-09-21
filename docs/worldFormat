@@ -16,18 +16,15 @@ CLOUDBOX_LEVEL: Compound[
     TimeCreated: Int() // Time of level creation. Unix timestamp.
     LastAccessed: Int() // Last time it was accessed.
     LastModified: Int() // Last time it was modified.
-    Spawn: Compound[
+    Spawn: Compound[ // Spawn point.
         X: Short()
         Y: Short()
         Z: Short()
     ]
     BlockArray: List(Compound)[
         [
-            ZIndex: Short() // Valid numbers range from 0 to 2047.
-            // Int is chosen because it is big enough to fit in all possible blocks in the forseeable future.
-            // Block storage start at 0 and for blocks bigger than 32768, storage starts at -32768 and
-            // goes up until -1.
-            BlockData: IntArray()
+            ZIndex: Short() // Layer number
+            BlockData: ByteArray()
         ]
         ...
     ]
