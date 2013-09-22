@@ -21,13 +21,8 @@ CLOUDBOX_LEVEL: Compound[
         Y: Short()
         Z: Short()
     ]
-    BlockArray: List(Compound)[
-        [
-            ZIndex: Short() // Layer number
-            BlockData: ByteArray()
-        ]
-        ...
-    ]
+    // Byte array of blocks. Index is calculated using this formula:( z * Length + y ) * Width + x
+    BlockArray: ByteArray()
     Metadata: Compound[
         // Plugins can add their metadata here.
         pluginName: Compound[
@@ -49,8 +44,4 @@ CLOUDBOX_LEVEL: Compound[
             ]
         ]
     ]
-    BlockMetadataAI: Long() // Next ID to use, similar to AUTO_INCREMENT in RDBMSs.
-    // Optional items
-    // Contains all BlockMetadata IDs that were once used but have been deleted.
-    FreeBlockMetadataEntries: List[]
 ]

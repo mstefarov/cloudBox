@@ -6,7 +6,6 @@
 import array
 import cStringIO
 
-import nbt
 from twisted.internet.threads import deferToThread
 from zope.interface import implements
 
@@ -33,13 +32,3 @@ class ClassicWorld(object):
 
     def loadWorld(self):
         deferToThread(self._loadWorld).addCallback(self.parseWorld)
-
-    def _loadWorld(self):
-        with open(self.factory.settings[""], "r") as f:
-            self._rawNBT = f.read()
-
-    def parseWorld(self):
-        """
-        Parses world NBT.
-        """
-        self.NBTFile = NBTFile(buffer=cStringIO.StringIO(self._rawNBT))
