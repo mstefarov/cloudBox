@@ -9,6 +9,7 @@ import cStringIO
 from twisted.internet.threads import deferToThread
 from zope.interface import implements
 
+from cloudbox.world.formats.cloudbox import CloudBoxWorldFormat
 from cloudbox.world.interfaces import IWorld
 
 
@@ -26,8 +27,6 @@ class ClassicWorld(object):
         self.blockMetadata = []
         self.blockMetadataAI = None
         self.freeBlockMetadataEntries = []
-        self._rawNBT = ""
-        self.NBTFile = None
         self.physics = None  # Physics engine here
 
     def loadWorld(self):

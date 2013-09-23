@@ -3,10 +3,12 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
-"""
-Constants for World Servers.
-"""
+from zope.interface import implements
 
-ERROR_HEADER_MISMATCH = 0
-ERROR_UNSUPPORTED_LEVEL_VERSION = 1
-ERROR_REQUIRED_FIELDS_MISSING = 2
+from cloudbox.world.formats.interfaces import IWorldFormat
+
+
+class BaseWorldFormat(object):
+    implements(IWorldFormat)
+
+    requiredFields = ["levelName", "x", "y", "z", "spawn"]
