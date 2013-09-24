@@ -23,6 +23,8 @@ CLOUDBOX_LEVEL: Compound[
     ]
     // Byte array of blocks. Index is calculated using this formula:( z * Length + y ) * Width + x
     BlockArray: ByteArray()
+
+    // TODO Separate metadata by software?
     Metadata: Compound[
         // Plugins can add their metadata here.
         pluginName: Compound[
@@ -33,10 +35,7 @@ CLOUDBOX_LEVEL: Compound[
         // Each item in the list represents one block. Plugin authors wishing to add metadata to the same block will
         // use the same entry.
         [
-            ID: Long() // Long to ensure it is possible to give an ID for every block.
-            X: Short()
-            Y: Short()
-            Z: Short()
+            ID: Long() // Index of block.
             Content: Compound[
                 pluginName: Compound[
                     // Format decided by plugin authors
