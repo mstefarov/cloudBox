@@ -1,6 +1,12 @@
+cloudBox World Format - by tyteen4a03 with input from fragmer
+
+File Extension: .cbl (Suggestions?)
+File Format: zlib'd NBT:
+
 CLOUDBOX_LEVEL: Compound[
     LEVEL_VERSION: Byte // Version of level file.
     LevelName: String()
+    LevelGUID: ByteArray() // Random bytes. This must stay intact in between loading/saving worlds. In Python uuid.uuid4() can be used.
     // Coordinates are all shorts, ranging from 0 tp 2047. At runtime 1 is added to support maximum 2048^3 map size.
     X: Short() // Length of level.
     Y: Short() // Width of level.
@@ -20,6 +26,8 @@ CLOUDBOX_LEVEL: Compound[
         X: Short()
         Y: Short()
         Z: Short()
+        H: Byte() // Heading
+        P: Byte() // Pitch
     ]
     // Byte array of blocks. Index is calculated using this formula:( z * Length + y ) * Width + x
     BlockArray: ByteArray()
@@ -35,7 +43,7 @@ CLOUDBOX_LEVEL: Compound[
         // Each item in the list represents one block. Plugin authors wishing to add metadata to the same block will
         // use the same entry.
         [
-            ID: Long() // Index of block.
+            ID: Int() // Index of block.
             Content: Compound[
                 pluginName: Compound[
                     // Format decided by plugin authors
