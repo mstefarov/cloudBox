@@ -1,6 +1,6 @@
 cloudBox World Format - by tyteen4a03 with input from fragmer
 
-File Extension: .cbl (Suggestions?)
+File Extension: .cw or .cwn (Classic World (in NBT). We are so creative!)
 File Format: zlib'd NBT:
 
 CLOUDBOX_LEVEL: Compound[
