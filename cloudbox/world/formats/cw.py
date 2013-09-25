@@ -9,27 +9,38 @@ import nbt
 from zope.interface import implements
 
 from cloudbox.constants.world import *
-from cloudbox.world.formats.base import BaseWorldFormat
+from cloudbox.world.interfaces import IWorldFormat
 
+class ClassicWorldWorldFormat(object):
+    implements(IWorldFormat)
 
-class CloudBoxWorldFormat(BaseWorldFormat):
-    name = "cloudBox Classic Format"
+    name = "ClassicWorld Format"
     supportsLoading = True
     supportsSaving = True
 
     CURRENT_LEVEL_VERSION = 0
     ACCEPTABLE_LEVEL_VERSIONS = [0]
 
+    requiredFields = ["WorldName", "WorldGUID", "X", "Y", "Z", "Spawn", "BlockArray" "Metadata"]
+    optionalFields = ["CreatedBy", "MapGeneratorUsed", "TimeCreated", "LastAccessed", "LastModified"]
+
     @staticmethod
     def loadWorld(filepath):
+        returnDict = {}
         with open(filepath, "r") as fo:
             _nbtFile = fo.read()
         nbtObject = nbt.NBTFile(cStringIO.StringIO(_nbtFile))
-        if nbtObject.name != "CLOUDBOX_LEVEL":
+        if nbtObject.name != "CLASSIC_WORLD":
             return {"error": ERROR_HEADER_MISMATCH}  # Not using exceptions due to performance
-        if nbtObject["LEVEL_VERSION"] not in CloudBoxWorldFormat.ACCEPTABLE_LEVEL_VERSIONS:
+        if nbtObject["WORLD_VERSION"] not in ClassicWorldWorldFormat.ACCEPTABLE_LEVEL_VERSIONS:
             return {"error": ERROR_UNSUPPORTED_LEVEL_VERSION}
-        for r in CloudBoxWorldFormat.requiredFields:
-            if not nbtObject["r"]:
+        for r in ClassicWorldWorldFormat.requiredFields:
+            if not nbtObject[r]:
                 return {"error": ERROR_REQUIRED_FIELDS_MISSING, "missingField": r}
-        return nbtObject  # The NBT lib seems to translate the object pretty well... passing it directly
+            returnDict[r] = nbtObject[r]
+        for r in ClassicWorldWorldFormat.optionalFields:
+            if nbtObject[r]:
+                returnDict[r] = nbtObject[r]
+            else:
+                returnDict[r] = None
+        return returnDict
