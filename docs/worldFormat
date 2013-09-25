@@ -1,7 +1,7 @@
 cloudBox World Format - by tyteen4a03 with input from fragmer
 
 File Extension: .cw (Classic World. We are so creative!)
-File Format: zlib'd NBT:
+File Format: gzip'd NBT:
 
 CLASSIC_WORLD: Compound[
     LEVEL_VERSION: Byte // Version of level file.
