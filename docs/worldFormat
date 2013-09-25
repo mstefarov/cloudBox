@@ -1,13 +1,13 @@
 cloudBox World Format - by tyteen4a03 with input from fragmer
 
-File Extension: .cw or .cwn (Classic World (in NBT). We are so creative!)
+File Extension: .cw (Classic World. We are so creative!)
 File Format: zlib'd NBT:
 
-CLOUDBOX_LEVEL: Compound[
+CLASSIC_WORLD: Compound[
     LEVEL_VERSION: Byte // Version of level file.
     LevelName: String()
     LevelGUID: ByteArray() // Random bytes. This must stay intact in between loading/saving worlds. In Python uuid.uuid4() can be used.
-    // Coordinates are all shorts, ranging from 0 tp 2047. At runtime 1 is added to support maximum 2048^3 map size.
+    // Coordinates are all shorts, ranging from 0 to 2047. At runtime 1 is added to support maximum 2048^3 map size.
     X: Short() // Length of level.
     Y: Short() // Width of level.
     Z: Short() // Height of level.
