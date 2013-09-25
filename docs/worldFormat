@@ -29,14 +29,15 @@ CLOUDBOX_LEVEL: Compound[
         H: Byte() // Heading
         P: Byte() // Pitch
     ]
-    // Byte array of blocks. Index is calculated using this formula:( z * Length + y ) * Width + x
+    // Byte array of blocks. Index is calculated using this formula: (z * Length + y) * Width + x
     BlockArray: ByteArray()
 
-    // TODO Separate metadata by software?
     Metadata: Compound[
-        // Plugins can add their metadata here.
-        pluginName: Compound[
-            // Format is up to plugin authors
+        // Softwares can add their metadata here.
+        softwareName: Compound[
+            pluginName: Compound[
+                // Plugins decide their own format here.
+            ]
         ]
     ]
     BlockMetadata: List(Compound)[
@@ -45,10 +46,15 @@ CLOUDBOX_LEVEL: Compound[
         [
             ID: Int() // Index of block.
             Content: Compound[
-                pluginName: Compound[
-                    // Format decided by plugin authors
+                softwareName: Compound[
+                    pluginName: Compound[
+                        // Plugins decide their own format here.
+                    ]
                 ]
             ]
         ]
     ]
 ]
+
+Notes:
+1. Reserved Metadata softwareNames are: CPE
