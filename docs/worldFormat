@@ -38,8 +38,9 @@ CLASSIC_WORLD: Compound[
                 Metadata: Compound[
                     // Plugins decide their own format here.
                 ]
-                BlockMetadata: Compound [
-                    BlockID: Compound [ // BlockID = index of block
+                BlockMetadata: List(Compound) [
+                    ID: Int() // Block index
+                    Metadata: Compound [
                         // Plugins decide their own format here.
                     ]
                 ]
