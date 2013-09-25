@@ -39,7 +39,7 @@ CLASSIC_WORLD: Compound[
                     // Plugins decide their own format here.
                 ]
                 BlockMetadata: List(Compound) [
-                    ID: Int() // Block index
+                    BlockIndex: Int() // Block index
                     Metadata: Compound [
                         // Plugins decide their own format here.
                     ]
