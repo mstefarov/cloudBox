@@ -1,6 +1,6 @@
 # cloudBox - Minecraft Classic of the Cloud.
 
-cloudBox is a solution for putting Minecraft Classic on the cloud, based on Twisted. It works by separating workloads from one single server to different servers. It is designed to be fast, efficient and powerful.
+cloudBox is a distributed Minecraft server, based on Twisted. It is currently a Classic-only server, however it has been designed to make supporting Minecraft Modern easy. It is designed to be fast, efficient and powerful.
 
 cloudBox is currently under heavy development. To contact the developer, drop by #cloudbox at one of the following IRC networks: EsperNet (main channel), Freenode.
 
@@ -8,7 +8,7 @@ cloudBox is currently under heavy development. To contact the developer, drop by
 
 ## Hub Server
 
-The Hub Server handles communication between Minecraft Clients and World Servers, and act as a proxy between the clients and the World Servers. It maintains connection between all servers, such as the World Server, the Database Server, and the Logger Server. It also operates an API that websites can query from.
+The Hub Server handles communication between Minecraft Clients and World Servers, and act as a proxy between the clients and the World Servers. It maintains connection between all servers, such as the World Server, the Database Server, and the Web Server.
 
 ## World Server
 
@@ -20,21 +20,21 @@ The Database Server handles communication between other servers and the database
 
 ## Web Server
 
-The Web server provides the website front-end to the server, allowing users to change settings of their worlds. This server is optional.
+The Web server provides the website front-end to the server, allowing users to change settings of their worlds. It also operates an API that websites can query from.
 
 # What makes cloudBox special
 
 ## Feature-rich
 
-cloudBox has a lot of features that other server softwares do not have: These include user scripting, a robust web interface, distributed realm mode, chat channels, while having basic features of a modern server, such as ranks, /blb (/cuboid) and world manipulation tools, etc. It also supports OpenClassic clients.
+cloudBox has a lot of features that other server softwares do not have: These include user scripting, a robust web interface, realm mode, chat channels, while having basic features of a modern server, such as user groups, /blb (/cuboid) and world manipulation tools, etc. It also supports CPE (Classic Protocol Extension) clients and heartbeats to ClassiCube.
 
 ## High-Performance
 
-cloudBox is designed to hold hundreds or even thousands of people with ease. As it is designed to allow horizonal scaling, more World Servers can be added to handle extra traffic easily. All Servers also employ caching, such as memcached, to decrease query amounts and speed up performance. World Servers "juggle" world files under the guidance of the Hub Server to maintain balance between World Servers.
+cloudBox is designed to hold hundreds or even thousands of players simultaneously with ease. As it is designed to allow horizonal scaling, more World Servers can be added to handle extra traffic easily. All Servers also employ caching, such as memcached, to decrease query amounts and speed up performance. World Servers "juggle" world files under the guidance of the Hub Server to maintain balance between World Servers.
 
 ## Flexibility
 
-The configuration file is easy to nagivate while proving a lot of options to fine-tune the system. cloudBox is designed to be horizontally scaled - you can add as many World Servers as you want to balance the load. The ranks system most users use have been upgraded to a usergroup system, where server admins can select commands users in the usergroup can run, along with other settings.
+The configuration file is easy to nagivate while proving a lot of options to fine-tune the system. cloudBox is designed to be horizontally scaled - you can add as many World Servers as you want to balance the load. The ranks system most users use have been upgraded to a user group system, where server admins can select commands users in the user group can run, along with other settings.
 
 ## Extensibility
 
