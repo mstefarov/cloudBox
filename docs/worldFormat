@@ -4,14 +4,16 @@ File Extension: .cw (Classic World. We are so creative!)
 File Format: gzip'd NBT:
 
 CLASSIC_WORLD: Compound[
-    LEVEL_VERSION: Byte // Version of level file.
+    LEVEL_VERSION: Byte() // Version of level file.
     LevelName: String()
-    LevelGUID: ByteArray() // Random bytes. This must stay intact in between loading/saving worlds. In Python uuid.uuid4() can be used.
+    // Random bytes. This must stay intact in between loading/saving worlds.
+    // In Python uuid.uuid4() can be used.
+    LevelGUID: ByteArray()
     // Coordinates are all shorts, ranging from 0 to 2047. At runtime 1 is added to support maximum 2048^3 map size.
     X: Short() // Length of level.
     Y: Short() // Width of level.
     Z: Short() // Height of level.
-    CreatedBy: [ // The creator of this map.
+    CreatedBy: Compound[ // The creator of this map.
         Service: String() // Minecraft or ClassiCube.
         Username: String()
     ]
@@ -38,11 +40,10 @@ CLASSIC_WORLD: Compound[
                 Metadata: Compound[
                     // Plugins decide their own format here.
                 ]
-                BlockMetadata: List(Compound) [
-                    BlockIndex: Int() // Block index
-                    Metadata: Compound [
-                        // Plugins decide their own format here.
-                    ]
+                BlockIndices: IntArray() // List of block indices, as ints
+                BlockMetadata: List(Compound)[
+                    // List of metadata corresponding to each block in BlockIndices
+                    // Must have same order and length as BlockIndices
                 ]
             ]
         ]
