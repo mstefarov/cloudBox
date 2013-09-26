@@ -1,4 +1,6 @@
-Storage format for CPE data (under Metadata.CPE):
+Storage format for CPE data (under Metadata.CPE).
+
+All extensions are optional.
 
 CPE: Compound[
     ClickDistance: Compound[
