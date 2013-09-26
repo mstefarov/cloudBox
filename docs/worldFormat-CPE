@@ -2,13 +2,16 @@ Storage format for CPE data (under Metadata.CPE):
 
 CPE: Compound[
     ClickDistance: Compound[
+        EXTENSION_VERSION: Int()
         Distance: Short()
     ]
     CustomBlocks: Compound[
+        EXTENSION_VERSION: Int()
         SupportLevel: Byte()
         Fallback: ByteArray() // Index is original block, value is fallback block.
     ]
     EnvColours: Compound[
+        EXTENSION_VERSION: Int()
         Sky: List(Short)[] // R, G, B
         Cloud: List(Short)[] // R, G, B
         Fog: List(Short)[] // R, G, B
@@ -16,6 +19,7 @@ CPE: Compound[
         Sunlight: List(Short)[] // R, G, B
     ]
     EnvMapAppearance: Compound[
+        EXTENSION_VERSION: Int()
         TextureURL: String()
         SideBlock: Byte()
         EdgeBlock: Byte()
