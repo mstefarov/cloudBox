@@ -28,4 +28,13 @@ class ClassicWorld(object):
         self.physics = None  # Physics engine here
 
     def loadWorld(self):
-        deferToThread(self._loadWorld).addCallback(self.parseWorld)
+        deferToThread(self._loadWorld).addCallback(lambda: self.__setattr__("worldReady", True))  # Laziness calls :D
+
+    def _loadWorld(self):
+        pass
+
+    def saveWorld(self):
+        deferToThread(self._saveWorld)
+
+    def _saveWorld(self):
+        pass
