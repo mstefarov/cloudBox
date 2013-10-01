@@ -44,3 +44,7 @@ class ClassicWorldWorldFormat(object):
             else:
                 returnDict[r] = None
         return returnDict
+
+    @staticmethod
+    def saveWorld(filepath, data):
+        pass

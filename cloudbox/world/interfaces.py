@@ -49,7 +49,7 @@ class IWorldFormat(Interface):
 
         """
 
-    def saveWorld(filepath):
+    def saveWorld(filepath, data):
         """
-        Saves a world from filepath.
+        Saves a world from filepath, using data given.
         """
