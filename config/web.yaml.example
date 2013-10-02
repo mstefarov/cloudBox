@@ -1,0 +1,15 @@
+cfginfo:
+    version: 1.0.0
+main:
+    port: 4482
+    hubserver:
+        ip: 127.0.0.1
+        port: 25001
+web-server-settings:
+    debug: false
+    gzip: true
+    cookie_secret: Select this text and mash your keyboard.
+    login_url: login
+    xsrf_cookies: true
+    static_path: ./static
+    static_url_prefix: /static/

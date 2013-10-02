@@ -10,11 +10,13 @@ from twisted.internet import reactor
 
 from cloudbox.web.application import WebServerApplication
 
+
 def init(serv):
     TwistedIOLoop().install()
 
-    httpServer = HTTPServer(WebServerApplication(serv))
-    httpServer.listen(serv.settings["web"]["port"])
-    IOLoop.instance().start()
+    serv.factories["WebServerApplicationHTTPServer"] = WebServerApplication(serv)
+    serv.factories["WebHTTPServer"] = HTTPServer(serv.factories["WebServerApplicationHTTPServer"])
+    serv.factories["WebHTTPServer"].listen(serv.settings["web"]["port"])
+    IOLoop.instance().run()
 
     reactor.run()
