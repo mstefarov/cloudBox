@@ -7,7 +7,7 @@ from twisted.internet.protocol import ServerFactory
 
 from cloudbox.common.logger import Logger
 from cloudbox.common.handlers import *
-from cloudbox.constants.handlers import *
+from cloudbox.common.constants.handlers import *
 from cloudbox.hub.world.protocol import WorldServerCommServerProtocol
 
 

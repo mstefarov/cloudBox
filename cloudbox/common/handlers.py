@@ -3,12 +3,10 @@
 # To view more details, please see the "LICENSE" file in the "docs" folder of the
 # cloudBox Package.
 
-import random
-
 from zope.interface import implements
+from cloudbox.common.constants import common, handlers
 
 from cloudbox.common.interfaces import IPacketHandler
-from cloudbox.constants import common, handlers
 
 
 class BasePacketHandler(object):

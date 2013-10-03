@@ -11,10 +11,9 @@ except ImportError:
     from yaml import Loader, Dumper
 
 from twisted.application.internet import TCPClient, TCPServer
-from twisted.application.service import MultiService
 
 from cloudbox.common.loops import LoopRegistry
-from cloudbox.constants.common import *
+from cloudbox.common.constants.common import *
 
 
 class cloudBoxService(object):

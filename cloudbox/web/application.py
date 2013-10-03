@@ -4,12 +4,12 @@
 # cloudBox Package.
 
 from jinja2 import Environment, FileSystemLoader
-import tornado.web
+from tornado import web
 
 from cloudbox.common.logger import Logger
 
 
-class WebServerApplication(tornado.web.Application):
+class WebServerApplication(web.Application):
     """
     I am the WebServer application.
     """
@@ -19,7 +19,7 @@ class WebServerApplication(tornado.web.Application):
         self.handlers = []
         self.logger = Logger()
         self.templateEnvironment = Environment(loader=FileSystemLoader("./templates"))
-        tornado.web.Application.__init__(self, self.handlers, self.parentService.settings["web"])
+        web.Application.__init__(self, self.handlers, self.parentService.settings["web"]["web-server-settings"])
 
     def log_request(self, handler):
         if handler.get_status() < 400:
@@ -29,5 +29,4 @@ class WebServerApplication(tornado.web.Application):
         else:
             logMethod = self.logger.error
         request_time = 1000.0 * handler.request.request_time()
-        logMethod("%d %s %.2fms", handler.get_status(),
-                   handler._request_summary(), request_time)
+        logMethod("%d %s %.2fms" % (handler.get_status(), handler._request_summary(), request_time))

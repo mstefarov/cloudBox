@@ -6,8 +6,7 @@
 from twisted.internet.protocol import Protocol
 
 from cloudbox.common.gpp import MSGPackPacketProcessor
-from cloudbox.constants.handlers import *
-from cloudbox.constants.world import *
+from cloudbox.common.constants.handlers import *
 
 
 class WorldServerProtocol(Protocol):

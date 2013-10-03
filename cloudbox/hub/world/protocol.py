@@ -5,7 +5,6 @@
 
 from twisted.internet.protocol import Protocol
 
-from cloudbox.constants.common import *
 from cloudbox.common.gpp import MSGPackPacketProcessor
 
 

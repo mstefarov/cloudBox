@@ -7,8 +7,8 @@ from twisted.internet.protocol import ServerFactory
 
 from cloudbox.common.logger import Logger
 from cloudbox.common.loops import LoopRegistry
-from cloudbox.constants.classic import *
-from cloudbox.constants.cpe import *
+from cloudbox.common.constants.classic import *
+from cloudbox.common.constants.cpe import *
 from cloudbox.hub.minecraft.handlers import classic, cpe
 from cloudbox.hub.minecraft.protocol import MinecraftHubServerProtocol
 

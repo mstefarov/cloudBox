@@ -6,8 +6,7 @@
 from twisted.internet import reactor
 from twisted.internet.protocol import Protocol, connectionDone as _connDone
 
-from cloudbox.constants.classic import *
-from cloudbox.constants.cpe import *
+from cloudbox.common.constants.classic import *
 from cloudbox.common.gpp import MinecraftClassicPacketProcessor
 from cloudbox.common.logger import Logger
 from cloudbox.common.loops import LoopRegistry

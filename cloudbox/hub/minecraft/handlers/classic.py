@@ -9,8 +9,8 @@ from twisted.internet.task import LoopingCall
 
 from cloudbox.common.handlers import BasePacketHandler
 from cloudbox.common.util import packString
-from cloudbox.constants.common import *
-from cloudbox.constants.classic import *
+from cloudbox.common.constants.common import *
+from cloudbox.common.constants.classic import *
 
 
 class HandshakePacketHandler(BasePacketHandler):

@@ -8,7 +8,6 @@ from zope.interface import implements
 
 from cloudbox.common.interfaces import IGeneralPacketProcessor
 from cloudbox.common.logger import Logger
-from cloudbox.constants.classic import *
 
 
 class BaseGeneralPacketProcessor(object):

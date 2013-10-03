@@ -5,12 +5,9 @@
 
 import sys
 
-from twisted.application.service import Application
-from twisted.internet import reactor
-
 from cloudbox.common.logger import Logger
 from cloudbox.common.service import cloudBoxService
-from cloudbox.constants.common import *
+from cloudbox.common.constants.common import *
 
 if sys.argv[1] not in SERVER_TYPES:
     raise Exception("ServerType not recognized")

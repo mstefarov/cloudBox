@@ -8,7 +8,7 @@ import cStringIO
 import nbt
 from zope.interface import implements
 
-from cloudbox.constants.world import *
+from cloudbox.common.constants.world import *
 from cloudbox.world.interfaces import IWorldFormat
 
 
@@ -19,33 +19,36 @@ class ClassicWorldWorldFormat(object):
     supportsLoading = True
     supportsSaving = True
 
+    worldStorageType = "file"
+    fileExtensions = ["cw"]
+
     CURRENT_LEVEL_VERSION = 0
     ACCEPTABLE_LEVEL_VERSIONS = [0]
 
     requiredFields = ["WorldName", "WorldGUID", "X", "Y", "Z", "Spawn", "BlockArray" "Metadata"]
     optionalFields = ["CreatedBy", "MapGeneratorUsed", "TimeCreated", "LastAccessed", "LastModified"]
 
-    @classmethod
-    def loadWorld(cls, filepath):
+    @staticmethod
+    def loadWorld(filepath):
         returnDict = {}
         with open(filepath, "r") as fo:
             _nbtFile = fo.read()
         nbtObject = nbt.NBTFile(cStringIO.StringIO(_nbtFile))
         if nbtObject.name != "CLASSIC_WORLD":
             return {"error": ERROR_HEADER_MISMATCH}  # Not using exceptions due to performance
-        if nbtObject["WORLD_VERSION"] not in cls.ACCEPTABLE_LEVEL_VERSIONS:
+        if nbtObject["WORLD_VERSION"] not in ClassicWorldWorldFormat.ACCEPTABLE_LEVEL_VERSIONS:
             return {"error": ERROR_UNSUPPORTED_LEVEL_VERSION}
-        for r in cls.requiredFields:
+        for r in ClassicWorldWorldFormat.requiredFields:
             if not nbtObject[r]:
                 return {"error": ERROR_REQUIRED_FIELDS_MISSING, "missingField": r}
             returnDict[r] = nbtObject[r]
-        for r in cls.optionalFields:
+        for r in ClassicWorldWorldFormat.optionalFields:
             if nbtObject[r]:
                 returnDict[r] = nbtObject[r]
             else:
                 returnDict[r] = None
         return returnDict
 
-    @classmethod
-    def saveWorld(cls, filepath, data):
+    @staticmethod
+    def saveWorld(filepath, data):
         pass

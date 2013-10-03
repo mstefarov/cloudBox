@@ -10,3 +10,8 @@ Constants for World Servers.
 ERROR_HEADER_MISMATCH = 0
 ERROR_UNSUPPORTED_LEVEL_VERSION = 1
 ERROR_REQUIRED_FIELDS_MISSING = 2
+
+
+SUPPORTED_LEVEL_FORMATS = {
+    "ClassicWorld": ("cloudbox.world.formats.cw", "ClassicWorldWorldFormat"),
+}

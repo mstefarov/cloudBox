@@ -5,7 +5,6 @@
 
 import urllib
 
-from twisted.application.service import Service
 from twisted.internet import reactor
 from twisted.internet.defer import succeed
 from twisted.internet.task import LoopingCall
@@ -15,7 +14,7 @@ from twisted.web.iweb import IBodyProducer
 from zope.interface import implements
 
 from cloudbox.common.logger import Logger
-from cloudbox.constants.common import VERSION
+from cloudbox.common.constants.common import VERSION
 
 
 class _StringProducer(object):

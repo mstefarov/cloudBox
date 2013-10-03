@@ -6,7 +6,7 @@
 import struct
 
 from cloudbox.common.util import packString
-from cloudbox.constants.common import FORMAT_LENGTHS
+from cloudbox.common.constants.common import FORMAT_LENGTHS
 
 
 class Format(object):

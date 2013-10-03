@@ -4,7 +4,7 @@
 # cloudBox Package.
 
 from cloudbox.common.handlers import BasePacketHandler
-from cloudbox.constants.cpe import *
+
 
 class ExtInfoPacketHandler(BasePacketHandler):
     """

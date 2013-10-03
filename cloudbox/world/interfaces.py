@@ -23,6 +23,9 @@ class IWorldFormat(Interface):
     supportsLoading = Attribute("Whether I support loading worlds from this format.")
     supportsSaving = Attribute("Whether I support saving worlds to this format.")
 
+    worldStorageFormat = Attribute("How this world is stored. Valid values are: file, directory, stream")
+    fileExtensions = Attribute("List of file extensions this WorldFormat supports. If it's a directory, set as None.")
+
     def loadWorld(filepath):
         # TODO Update this docstring
         """
@@ -46,10 +49,11 @@ class IWorldFormat(Interface):
             LastAccessed: Last time it was accessed.
             LastModified: Last time it was modified.
             Metadata, BlockMetadata, BlockMetadataAI, FreeBlockMetadataEntries: See docs/worldFormat.
-
+        This function is allowed to block.
         """
 
     def saveWorld(filepath, data):
         """
         Saves a world from filepath, using data given.
+        This function is allowed to block.
         """

@@ -7,7 +7,7 @@ from twisted.internet.protocol import ReconnectingClientFactory
 
 from cloudbox.common.handlers import *
 from cloudbox.common.logger import Logger
-from cloudbox.constants.handlers import *
+from cloudbox.common.constants.handlers import *
 from cloudbox.world.handlers import *
 from cloudbox.world.protocol import WorldServerProtocol
 
